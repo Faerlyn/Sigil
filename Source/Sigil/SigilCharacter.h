@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "UDA_SpellInfo.h"
 #include "SigilCharacter.generated.h"
 
 UCLASS()
@@ -26,4 +27,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TArray<UDA_SpellInfo*> PreparedSpells;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UDA_SpellInfo* EquippedSpell;
 };
