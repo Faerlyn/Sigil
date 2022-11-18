@@ -36,21 +36,39 @@ public:
 protected:
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hit Points")
 		float HitPoints;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		float MaxiumumHitPoints = 100;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hit Points")
+		float MaximumHitPoints = 100;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Points")
+		float HitPointRegenPercent = 0.01f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Points")
+		bool bCanRegenHitPoints = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Magic Points")
 		float MagicPoints;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Magic Points")
 		float MaximumMagicPoints = 200;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Magic Points")
+		bool bCanRegenMagicPoints = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Magic Points")
+		float MagicPointRegenPercent = 0.05f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina Points")
 		float StaminaPoints;
 		
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina Points")
 		float MaximumStaminaPoints = 50;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina Points")
+		bool bCanRegenStaminaPoints = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina Points")
+		float StaminaPointRegenPercent = 0.25f;
 };

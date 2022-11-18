@@ -9,6 +9,9 @@ ASigilCharacter::ASigilCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributesComponent>(TEXT("Character Attributes Component"));
+	SpellcastingComponent = CreateDefaultSubobject<USpellcastingComponent>(TEXT("Spellcasting Component"));
+
 }
 
 // Called when the game starts or when spawned

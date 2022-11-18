@@ -21,11 +21,10 @@ void UCharacterAttributesComponent::BeginPlay()
 
 	// ...
 
-	HitPoints = MaxiumumHitPoints;
+	HitPoints = MaximumHitPoints;
 	MagicPoints = MaximumMagicPoints;
 	StaminaPoints = MaximumStaminaPoints;
 
-	
 }
 
 
@@ -35,5 +34,29 @@ void UCharacterAttributesComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+
+	if (bCanRegenHitPoints)
+	{
+		if (HitPoints < MaximumHitPoints)
+		{
+			HitPoints += (MaximumHitPoints * (HitPointRegenPercent / 100));
+		}
+	}
+
+	if (bCanRegenMagicPoints)
+	{
+		if (MagicPoints < MaximumMagicPoints)
+		{
+			MagicPoints += (MaximumMagicPoints * (MagicPointRegenPercent / 100));
+		}
+	}
+
+	if (bCanRegenStaminaPoints)
+	{
+		if (StaminaPoints < MaximumStaminaPoints)
+		{
+			StaminaPoints += (MaximumStaminaPoints * (StaminaPointRegenPercent / 100));
+		}
+	}
 }
 

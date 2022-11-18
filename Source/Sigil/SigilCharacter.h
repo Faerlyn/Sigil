@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "UDA_SpellInfo.h"
+#include "CharacterAttributesComponent.h"
+#include "SpellcastingComponent.h"
 #include "SigilCharacter.generated.h"
 
 UCLASS()
@@ -28,8 +29,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TArray<UDA_SpellInfo*> PreparedSpells;
+	UCharacterAttributesComponent* CharacterAttributesComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UDA_SpellInfo* EquippedSpell;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USpellcastingComponent* SpellcastingComponent;
 };
