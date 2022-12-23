@@ -33,4 +33,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USpellcastingComponent* SpellcastingComponent;
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void AddSpellToSpellbook(UDA_SpellInfo* InSpellInfo);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		bool RemoveSpellFromSpellbook(UDA_SpellInfo* InSpellInfo);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetSelectedSpellIndex(int NewIndex);
 };

@@ -24,4 +24,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float WidgetMinimumHeight;
+
+	FText GetWidgetName();
 };

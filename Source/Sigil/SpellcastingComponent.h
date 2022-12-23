@@ -30,6 +30,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	USpellbookComponent* GetSpellbookComponent() { return SpellbookComponent; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<UDA_SpellInfo*> PreparedSpells;
 
