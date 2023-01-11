@@ -9,6 +9,7 @@ void USigilMenuSpellbook::NativePreConstruct()
 
 	SetWidgetMinimumSize();
 
+	//Set WidgetName, which is used when this widget is added to the WindowFrame widget
 	WidgetName = UKismetTextLibrary::Conv_StringToText("Spellbook");
 }
 
@@ -19,108 +20,88 @@ void USigilMenuSpellbook::NativeConstruct()
 	RefreshSpellbookSlots();
 
 	//Bind the buttons to their functions
-	Button_AddToSpellbar->OnClicked.AddDynamic(this, &USigilMenuSpellbook::AddSpellToSpellbar);
-	Button_CopySpell->OnClicked.AddDynamic(this, &USigilMenuSpellbook::CopySelectedSpell);
-	Button_DeleteSpell->OnClicked.AddDynamic(this, &USigilMenuSpellbook::DeleteSelectedSpell);
-	Button_NewSpell->OnClicked.AddDynamic(this, &USigilMenuSpellbook::CreateNewSpell);
-	Button_RemoveFromSpellbar->OnClicked.AddDynamic(this, &USigilMenuSpellbook::RemoveSpellFromSpellbar);
-	Button_SaveChanges->OnClicked.AddDynamic(this, &USigilMenuSpellbook::SaveChangesToSpell);
+	Button_AddToSpellbar->GetButton()->OnClicked.AddUniqueDynamic(this, &USigilMenuSpellbook::AddSpellToSpellbar);
+	Button_AddToSpellbar->SynchronizeProperties();
 
-	//Bind button animations
-	Button_AddToSpellbar->OnPressed.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_AddToSpellbar);
-	Button_CopySpell->OnPressed.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_CopySpell);
-	Button_DeleteSpell->OnPressed.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_DeleteSpell);
-	Button_NewSpell->OnPressed.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_NewSpell);
-	Button_RemoveFromSpellbar->OnPressed.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_RemoveFromSpellbar);
-	Button_SaveChanges->OnPressed.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_SaveChanges);
+	Button_CopySpell->GetButton()->OnClicked.AddUniqueDynamic(this, &USigilMenuSpellbook::CopySelectedSpell);
+	Button_CopySpell->SynchronizeProperties();
+
+	Button_DeleteSpell->GetButton()->OnClicked.AddUniqueDynamic(this, &USigilMenuSpellbook::DeleteSelectedSpell);
+	Button_DeleteSpell->SynchronizeProperties();
+
+	Button_NewSpell->GetButton()->OnClicked.AddUniqueDynamic(this, &USigilMenuSpellbook::CreateNewSpell);
+	Button_NewSpell->SynchronizeProperties();
+
+	Button_RemoveFromSpellbar->GetButton()->OnClicked.AddUniqueDynamic(this, &USigilMenuSpellbook::RemoveSelectedSpellFromSpellbar);
+	Button_RemoveFromSpellbar->SynchronizeProperties();
+
+	Button_SaveChanges->GetButton()->OnClicked.AddUniqueDynamic(this, &USigilMenuSpellbook::SaveChangesToSpell);
+	Button_SaveChanges->SynchronizeProperties();
+
 	
-	Button_AddToSpellbar->OnReleased.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_AddToSpellbar_Reverse);
-	Button_CopySpell->OnReleased.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_CopySpell_Reverse);
-	Button_DeleteSpell->OnReleased.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_DeleteSpell_Reverse);
-	Button_NewSpell->OnReleased.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_NewSpell_Reverse);
-	Button_RemoveFromSpellbar->OnReleased.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_RemoveFromSpellbar_Reverse);
-	Button_SaveChanges->OnReleased.AddDynamic(this, &USigilMenuSpellbook::PlayButtonAnimation_SaveChanges_Reverse);
+	//Bind delegates for textbox hint text
+	EditableTextBox_SpellName->HintTextDelegate.BindDynamic(this, &USigilMenuSpellbook::Get_EditableTextBox_SpellName_HintText);
+	EditableTextBox_SpellName->SynchronizeProperties();
 
-
+	EditableTextBox_Potency->HintTextDelegate.BindDynamic(this, &USigilMenuSpellbook::Get_EditableTextBox_Potency_HintText);
+	EditableTextBox_Potency->SynchronizeProperties();
 }
 
+/// <summary>
+/// <para>Converts a float value between 0 and 2 into a percentage value used by this widget's sliders.</para>
+/// E.g. 0.2 -> -80%, 1.5 -> +50%
+/// </summary>
+/// <param name="InValue">The float value to convert</param>
+/// <returns></returns>
 float USigilMenuSpellbook::ConvertFloatToPercentage(float InValue)
 {
-	//Converts a float value between 0 and 2 into a percentage value used by this widget's sliders. E.g. 0.2 -> -80%, 1.5 -> +50%
-	if (InValue >= 1)
-	{
-		return (InValue - 1) * 100;
-	}
-	else
-	{
-		return ((1 - InValue) * 100) * -1;
-	}
+	return (InValue - 1) * 100;
 }
 
+/// <summary>
+/// <para>Converts a float value between -100 and 100 into the float value used by DA_SpellInfo's multiplier variables.</para>
+/// E.g. -80 -> 0.2, 50 -> 1.5
+/// </summary>
+/// <param name="InValue">The float value to convert</param>
+/// <returns></returns>
 float USigilMenuSpellbook::ConvertPercentageToFloat(float InValue)
 {
-	//Converts a float value between -100 and 100 into the float value used by DA_SpellInfo's cost multiplier variables. E.g. -80 -> 0.2, 50 -> 1.5
 	return (InValue / 100) + 1;
 }
 
-void USigilMenuSpellbook::Get_Slider_MPCostPercent_ToolTipText()
-{
-	Slider_MPCostPercent->SetToolTipText(CreateSliderTooltip(Slider_MPCostPercent));
-}
-
-void USigilMenuSpellbook::Get_Slider_DamagePercent_ToolTipText()
-{
-	Slider_DamagePercent->SetToolTipText(CreateSliderTooltip(Slider_DamagePercent));
-}
-
-void USigilMenuSpellbook::Get_Slider_SpeedPercent_ToolTipText()
-{
-	Slider_SpeedPercent->SetToolTipText(CreateSliderTooltip(Slider_SpeedPercent));
-}
-
-FText USigilMenuSpellbook::CreateSliderTooltip(USlider* InSlider)
-{
-	//Round the value of the InSlider and check if the result is a positive number
-	if (UKismetMathLibrary::Round(InSlider->GetValue()) > 0)
-	{
-		//If true, convert the value to a string, prepend '+' to the value and append '%'. Convert the string to text and pass it into the return node.
-		FString OutputString;
-
-		OutputString.Append("+");
-		OutputString.Append(UKismetStringLibrary::Conv_IntToString(UKismetMathLibrary::Round(InSlider->GetValue())));
-		OutputString.Append("%");
-
-		return UKismetTextLibrary::Conv_StringToText(OutputString);
-	}
-	else
-	{
-		//If false, convert the value to a string and append '%'. Convert the string to text and pass it into the return node.
-		FString OutputString;
-
-		OutputString.Append(UKismetStringLibrary::Conv_IntToString(UKismetMathLibrary::Round(InSlider->GetValue())));
-		OutputString.Append("%");
-
-		return UKismetTextLibrary::Conv_StringToText(OutputString);
-	}
-}
-
+/// <summary>
+/// Update the tooltip shown in the Spellbook widget
+/// </summary>
 void USigilMenuSpellbook::CreateSpellbookTooltipWidget()
 {
+	//Validate SelectedSpell
 	if (SelectedSpell)
 	{
+		//Validate ScaleBox_Tooltip
 		if (ScaleBox_Tooltip)
 		{
+			//Remove any children from ScaleBox_Tooltip
+			ScaleBox_Tooltip->ClearChildren();
+
+			//Create a SigilSpellTooltip widget using the SpellTooltip blueprint reference defined in the Spellbook blueprint
 			TooltipRef = CreateWidget<USigilSpellTooltipWidget>(GetParent(), SpellTooltipWidgetBP);
+
+			//Call SetInitialVariables for the new widget
 			TooltipRef->SetInitialVariables(SelectedSpell, true);
 
+			//Make the widget a child of ScaleBox_Tooltip
 			ScaleBox_Tooltip->AddChild(TooltipRef);
 
+			//Slot TooltipRef as a ScaleBoxSlot and set its horizontal and vertical alignment to fill
 			UWidgetLayoutLibrary::SlotAsScaleBoxSlot(TooltipRef)->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
 			UWidgetLayoutLibrary::SlotAsScaleBoxSlot(TooltipRef)->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
 		}
 	}
 }
 
+/// <summary>
+/// Calls various functions to update the Spellbook widget
+/// </summary>
 void USigilMenuSpellbook::RefreshSpellbookSlots()
 {
 	ClearAllWrapBoxSlots();
@@ -130,52 +111,65 @@ void USigilMenuSpellbook::RefreshSpellbookSlots()
 	SetSelectedSlot();
 }
 
+/// <summary>
+/// If SelectedSpell is valid, search the Core and Player Slot WrapBoxes for SelectedSpell. If it is found, set its SpellbookSlot as the new selected slot
+/// </summary>
 void USigilMenuSpellbook::SetSelectedSlot()
 {
-	//If SelectedSpell is valid, search the Core Slotand Player Slot wrap boxes for the SelectedSpell.If it is found, set its SpellbookSlot as the new selected slot
-	if (SelectedSlot)
+	//Validate SelectedSpell
+	if (SelectedSpell)
 	{
+		//If SelectedSpell could not be found in WrapBox_SpellbookCoreSlots
 		if (!SearchWrapBoxForSelectedSpell(WrapBox_SpellbookCoreSlots))
 		{
-			//If SelectedSpell could not be found, set the first child of the Core Slot wrap box as the new selected slot
+			//Search WrapBox_SpellbookPlayerSlots for SelectedSpell
 			if (!SearchWrapBoxForSelectedSpell(WrapBox_SpellbookPlayerSlots))
 			{
+				//If neither search could find SelectedSpell, call SetNewSelectSlot for the first child of WrapBox_SpellbookCoreSlots
 				SetNewSelectedSlot(Cast<USigilUISpellbookSlot>(WrapBox_SpellbookCoreSlots->GetChildAt(0)));
 			}
 		}
 	}
 	else
 	{
-		//If SelectedSpell is not valid, set the first child of the Core Slot wrap box as the new selected slot
+		//If SelectedSpell is not valid, call SetNewSelectSlot for the first child of WrapBox_SpellbookCoreSlots
 		SetNewSelectedSlot(Cast<USigilUISpellbookSlot>(WrapBox_SpellbookCoreSlots->GetChildAt(0)));
 	}
 }
 
+/// <summary>
+/// Sets NewSlot as the new selected slot and updates the information displayed by the Spellbook widget
+/// </summary>
+/// <param name="NewSlot"></param>
 void USigilMenuSpellbook::SetNewSelectedSlot(USigilUISpellbookSlot* NewSlot)
 {
-	//Clear any children inside the Tooltip scale box
-	ScaleBox_Tooltip->ClearChildren();
-
-	//Unselect the currently selected slot and set IsSelected to true for NewSlot, then set it as the new SelectedSlot.
+	//Validate SelectedSlot
 	if (SelectedSlot)
 	{
+		//Set IsSelected to false
 		SelectedSlot->SetIsSelected(false);
 	}
 
+	//Validate NewSlot
 	if (NewSlot)
 	{
+		//Set IsSelected to true
 		NewSlot->SetIsSelected(true);
+
+		//Set NewSlot as the new SelectedSlot
 		SelectedSlot = NewSlot;
 	}
 
-	/*Get SlotSpellInfo from SelectedSlotand set is as the SelectedSpell. Call the ShowSpellProperties function to update 
-	the information displayed in the spell properties vertical box*/
+	//Validate SelectedSlot
 	if (SelectedSlot)
 	{
+		//Validate SelectedSlot's SlotSpellInfo
 		if (SelectedSlot->SlotSpellInfo)
 		{
+			//Set SlotSpellInfo as the new SelectedSpell
 			SelectedSpell = SelectedSlot->SlotSpellInfo;
 
+			//Call ShowSpellProperties to update the information displayed in the spell properties vertical box
 			ShowSpellProperties();
 		}
 	}
@@ -183,6 +177,9 @@ void USigilMenuSpellbook::SetNewSelectedSlot(USigilUISpellbookSlot* NewSlot)
 	CreateSpellbookTooltipWidget();
 }
 
+/// <summary>
+/// Creates USigilUISpellbookSlot widgets to put inside the CoreSlots WrapBox. The widgets are created from UDA_SpellInfo objects found by the Asset Registry.
+/// </summary>
 void USigilMenuSpellbook::PopulateCoreSlots()
 {
 	//Get all assets of class DA_SpellInfo
@@ -191,224 +188,282 @@ void USigilMenuSpellbook::PopulateCoreSlots()
 
 	if (AssetRegistryModule.Get().GetAssetsByClass(UDA_SpellInfo::StaticClass()->GetFName(), AssetData))
 	{
-		int WrapBoxIndex = 0;
+		int ArrayIndex = 0;
 
-		//For each asset, cast it to DA_SpellInfo, create a SpellbookSlot widget, and add it as a child to the Core Slots wrap box
+		//For each asset
 		for (FAssetData ArrayElement : AssetData)
 		{
+			//Create the name of the widget using the following format: CoreSpellSlot_[ArrayIndex]_[SpellInfo->Name] e.g. CoreSpellSlot_1_Fireball
 			FString SlotName = "CoreSpellSlot_";
-			SlotName.Append(UKismetStringLibrary::Conv_IntToString(WrapBoxIndex));
+			SlotName.Append(UKismetStringLibrary::Conv_IntToString(ArrayIndex));
 			SlotName.Append("_");
 			SlotName.Append(UKismetStringLibrary::Conv_NameToString(Cast<UDA_SpellInfo>(ArrayElement.GetAsset())->Name));
 
+			//Cast it to DA_SpellInfo and create a SpellbookSlot widget
 			if (USigilUISpellbookSlot* SpellbookSlot = CreateWidget<USigilUISpellbookSlot>(this, SpellbookSlotWidgetBP, UKismetStringLibrary::Conv_StringToName(SlotName)))
 			{
+				//Call SetInitialVariables for the new widget
 				SpellbookSlot->SetInitialVariables(Cast<UDA_SpellInfo>(ArrayElement.GetAsset()), this);
 
+				//Make the new widget a child of the wrap box
 				WrapBox_SpellbookCoreSlots->AddChildToWrapBox(SpellbookSlot);
 
-				WrapBoxIndex++;
+				//Increment ArrayIndex
+				ArrayIndex++;
 			}
 		}
 	}
 }
 
+/// <summary>
+/// Creates USigilUISpellbookSlot widgets to put inside the CoreSlots wrap box.
+/// The widgets are created from UDA_SpellInfo objects stored in the player character's PlayerSpells array.
+/// </summary>
 void USigilMenuSpellbook::PopulatePlayerSlots()
 {
-	//Get the owning player's controlled pawn and cast it to SigilCharacter. Get the PlayerSpells array from the Spellbook component
+	//Get the owning player's controlled pawn and cast it to SigilCharacter. Get the pawn's Spellbook component
 	if (USpellbookComponent* SpellbookComponent = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn())->SpellcastingComponent->GetSpellbookComponent())
 	{
-		int WrapBoxIndex = 0;
+		int ArrayIndex = 0;
 
-		//For each item in the array, create a SpellbookSlot widget, and add it as a child to the Player Slots wrap box
+		//For each item in the PlayerSpells array
 		for (UDA_SpellInfo* SpellInfo : SpellbookComponent->PlayerSpells)
 		{
+			//Create the name of the widget using the following format: PlayerSpellSlot_[ArrayIndex]_[SpellInfo->Name] e.g. PlayerSpellSlot_1_Fireball
 			FString SlotName = "PlayerSpellSlot_";
-			SlotName.Append(UKismetStringLibrary::Conv_IntToString(WrapBoxIndex));
+			SlotName.Append(UKismetStringLibrary::Conv_IntToString(ArrayIndex));
 			SlotName.Append("_");
 			SlotName.Append(UKismetStringLibrary::Conv_NameToString(SpellInfo->Name));
 
+			//Create a SpellbookSlot widget, and add it as a child to the Player Slots wrap box
 			if (USigilUISpellbookSlot* SpellbookSlot = CreateWidget<USigilUISpellbookSlot>(this, SpellbookSlotWidgetBP, UKismetStringLibrary::Conv_StringToName(SlotName)))
 			{
+				//Call SetInitialVariables for the new widget
 				SpellbookSlot->SetInitialVariables(SpellInfo, this);
 
+				//Make the new widget a child of the wrap box
 				WrapBox_SpellbookPlayerSlots->AddChildToWrapBox(SpellbookSlot);
 
-				WrapBoxIndex++;
+				//Increment ArrayIndex
+				ArrayIndex++;
 			}
 		}
 	}
 }
 
-void USigilMenuSpellbook::Get_EditableTextBox_SpellName_HintText()
+FText USigilMenuSpellbook::Get_EditableTextBox_SpellName_HintText()
 {
+	//Validate SelectedSpell
 	if (SelectedSpell)
 	{
-		EditableTextBox_SpellName->SetText(UKismetTextLibrary::Conv_NameToText(SelectedSpell->Name));
+		//Set the text of EditableTextBox_SpellName to the value of SelectedSpell's Name variable
+		return UKismetTextLibrary::Conv_NameToText(SelectedSpell->Name);
 	}
+
+	//Return nothing if validation fails
+	return FText();
 }
 
-void USigilMenuSpellbook::Get_EditableTextBox_Potency_HintText()
+FText USigilMenuSpellbook::Get_EditableTextBox_Potency_HintText()
 {
-	EditableTextBox_Potency->SetText(UKismetTextLibrary::Conv_StringToText("Numerical values only..."));
+	//Hardcoded hint text to warn against entering non-numeric values
+	return UKismetTextLibrary::Conv_StringToText("Numerical values only...");
 }
 
+/// <summary>
+/// Populates the options of the combo boxes used this widget
+/// </summary>
 void USigilMenuSpellbook::PopulateComboBoxes()
 {
 	ClearComboBoxes();
 
-	//Add every value from ESpellForm as an option to the Spell Form combo box
+	//For each value in ESpellForm
 	for (ESpellForm SpellForm : TEnumRange<ESpellForm>())
 	{
+		//Add the value as an option to the Spell Form combo box
 		ComboBoxString_PropertySpellForm->AddOption(UEnum::GetDisplayValueAsText(SpellForm).ToString());
+
+		//Add the value to the SpellFormTypes array
 		SpellFormTypes.AddUnique(SpellForm);
 	}
 
-	//Add every value from ESpellTarget as an option to the Target combo box
+	//For each value in ESpellTarget
 	for (ESpellTarget SpellTarget : TEnumRange<ESpellTarget>())
 	{
+		//Add the value as an option to the Target combo box
 		ComboBoxString_PropertyTarget->AddOption(UEnum::GetDisplayValueAsText(SpellTarget).ToString());
+		
+		//Add the value to the SpellTargetTypes array
 		SpellTargetTypes.AddUnique(SpellTarget);
 	}
 	
-	//Add every value from EMagicElement as an option to the Element combo box
+	//For each value in EMagicElement
 	for (EMagicElementType MagicElement : TEnumRange<EMagicElementType>())
 	{
+		//Add the value as an option to the Element combo box
 		ComboBoxString_PropertyElement->AddOption(UEnum::GetDisplayValueAsText(MagicElement).ToString());
+		
+		//Add the value to the MagicElementTypes array
 		MagicElementTypes.AddUnique(MagicElement);
 	}
 }
 
+/// <summary>
+/// Clears the options from this widget's combo boxes
+/// </summary>
 void USigilMenuSpellbook::ClearComboBoxes()
 {
-	//Clear the options from all combo boxes
 	ComboBoxString_PropertySpellForm->ClearOptions();
 	ComboBoxString_PropertyTarget->ClearOptions();
 	ComboBoxString_PropertyElement->ClearOptions();
 }
 
+/// <summary>
+/// Calls ConvertPercentageToFloat for each slider widget and sets NewSpell's multiplier variables
+/// </summary>
 void USigilMenuSpellbook::ConvertSliderValues()
 {
-	//Pass the value of the MPCostPercent slider into ConvertPercentageToFloat. Set NewSpellMPCostMultiplier to the function's output
-	NewSpell_MPCostMultiplier = ConvertPercentageToFloat(Slider_MPCostPercent->GetValue());
+	//Pass the value of the MPCostPercent slider into ConvertPercentageToFloat. Set NewSpell.MPCostMultiplier to the function's output
+	NewSpell.MPCostMultiplier = ConvertPercentageToFloat(Slider_MPCostPercent->GetSliderValue());
 
-	//Pass the value of the DamagePercent slider into ConvertPercentageToFloat. Set NewSpellDamageMultiplier to the function's output
-	NewSpell_DamageMultiplier = ConvertPercentageToFloat(Slider_DamagePercent->GetValue());
+	//Pass the value of the DamagePercent slider into ConvertPercentageToFloat. Set NewSpell.DamageMultiplier to the function's output
+	NewSpell.DamageMultiplier = ConvertPercentageToFloat(Slider_DamagePercent->GetSliderValue());
 
-	//Pass the value of the SpeedPercent slider into ConvertPercentageToFloat. Set NewSpellSpeedMultiplier to the function's output
-	NewSpell_SpeedMultiplier = ConvertPercentageToFloat(Slider_SpeedPercent->GetValue());
+	//Pass the value of the SpeedPercent slider into ConvertPercentageToFloat. Set NewSpell.SpeedMultiplier to the function's output
+	NewSpell.SpeedMultiplier = ConvertPercentageToFloat(Slider_SpeedPercent->GetSliderValue());
 }
 
+/// <summary>
+/// Remove any child objects from the wrap boxes
+/// </summary>
 void USigilMenuSpellbook::ClearAllWrapBoxSlots()
 {
-	//Remove any children from the wrap boxes
 	WrapBox_SpellbookCoreSlots->ClearChildren();
 	WrapBox_SpellbookPlayerSlots->ClearChildren();
 }
 
+/// <summary>
+/// This function gets the children of InWrapBox and casts them to USigilUISpellbookSlot.
+/// If the SlotSpellInfo variable of a child object is the same as SelectedSpell, return true.
+/// </summary>
+/// <param name="InWrapBox">The WrapBox to search through</param>
+/// <returns>true or false</returns>
 bool USigilMenuSpellbook::SearchWrapBoxForSelectedSpell(UWrapBox* InWrapBox)
 {
-	//Check that InWrapBox has children before continuing
+	//If InWrapBox has children
 	if (InWrapBox->HasAnyChildren())
 	{
-		//Get each child of InWrapBox that is a SpellbookSlot widget
+		//For each child of InWrapBox
 		for (size_t i = 0; i < InWrapBox->GetChildrenCount(); i++)
 		{
+			//Try to cast it to USigilUISpellbookSlot
 			if (USigilUISpellbookSlot* ChildSlot = Cast<USigilUISpellbookSlot>(InWrapBox->GetChildAt(i)))
 			{
-				//Check if its SlotSpellInfo is the same as SelectedSpell
+				//If the child's SlotSpellInfo is the same as SelectedSpell
 				if (ChildSlot->SlotSpellInfo == SelectedSpell)
 				{
-					//Call SetNewSelectedSlot with ChildSlot as NewSlot, return true
+					//Call SetNewSelectedSlot with ChildSlot as NewSlot
 					SetNewSelectedSlot(ChildSlot);
+
+					//Return true to show that this function found a matching spell
 					return true;
 				}
 			}
 		}
 	}
 
-	//If not matching spell is found, return false
+	//Return false to show that this function did not find a matching spell
 	return false;
 }
 
+/// <summary>
+/// Set this widget's minimum height and width, these two variables will be used by the WindowFrame widget
+/// </summary>
 void USigilMenuSpellbook::SetWidgetMinimumSize()
 {
-	//Set the Widget's minimum height and width, these two variables will be used by the WindowFrame widget
 	WidgetMinimumWidth = Spellbook->MinDesiredWidth;
 	WidgetMinimumHeight = Spellbook->MinDesiredHeight;
 }
 
+
+
+/// <summary>
+/// Updates the information displayed in the spell properties vertical box 
+/// </summary>
 void USigilMenuSpellbook::ShowSpellProperties()
 {
 	//Validate SelectedSpell
 	if (SelectedSpell)
 	{
-		//Set the text of the SpellName text box to the Name of SelectedSpell
+		
 		if (EditableTextBox_SpellName)
 		{
+			//Set the text of the SpellName text box to the Name of SelectedSpell
 			EditableTextBox_SpellName->SetText(UKismetTextLibrary::Conv_NameToText(SelectedSpell->Name));
 		}
 
-		//Set the selected option of the SpellForm combo box to the Form of SelectedSpell
 		if (ComboBoxString_PropertySpellForm)
 		{
+			//Set the selected option of the SpellForm combo box to the Form of SelectedSpell
 			ComboBoxString_PropertySpellForm->SetSelectedOption(UEnum::GetDisplayValueAsText(SelectedSpell->Form).ToString());
 		}
 
-		//Get MPCostMultiplier from SelectedSpell and pass it into the function ConvertFloatToPercentage. Set the value of the MPCostPercent slider to the function's output.
 		if (Slider_MPCostPercent)
 		{
-			Slider_MPCostPercent->SetValue(ConvertFloatToPercentage(SelectedSpell->MPCostMultiplier));
+			//Get MPCostMultiplier from SelectedSpell and pass it into the function ConvertFloatToPercentage. Set the value of the MPCostPercent slider to the function's output.
+			Slider_MPCostPercent->SetSliderValue(ConvertFloatToPercentage(SelectedSpell->MPCostMultiplier));
 		}
 
-		//Get DamageMultiplier from SelectedSpell and pass it into the function ConvertFloatToPercentage. Set the value of the DamagePercent slider to the function's output.
 		if (Slider_DamagePercent)
 		{
-			Slider_DamagePercent->SetValue(ConvertFloatToPercentage(SelectedSpell->DamageMultiplier));
+			//Get DamageMultiplier from SelectedSpell and pass it into the function ConvertFloatToPercentage. Set the value of the DamagePercent slider to the function's output.
+			Slider_DamagePercent->SetSliderValue(ConvertFloatToPercentage(SelectedSpell->DamageMultiplier));
 		}
 
-		//Get SpeedMultiplier from SelectedSpell and pass it into the function ConvertFloatToPercentage. Set the value of the SpeedPercent slider to the function's output.
 		if (Slider_SpeedPercent)
 		{
-			Slider_SpeedPercent->SetValue(ConvertFloatToPercentage(SelectedSpell->SpeedMultiplier));
+			//Get SpeedMultiplier from SelectedSpell and pass it into the function ConvertFloatToPercentage. Set the value of the SpeedPercent slider to the function's output.
+			Slider_SpeedPercent->SetSliderValue(ConvertFloatToPercentage(SelectedSpell->SpeedMultiplier));
 		}
 
-		//Set IsChecked on the Homing check box to the value of IsHoming from SelectedSpell
 		if (CheckBox_Homing)
 		{
+			//Set IsChecked on the Homing check box to the value of IsHoming from SelectedSpell
 			CheckBox_Homing->SetIsChecked(SelectedSpell->bIsHoming);
 		}
 
-		//Set the selected option of the Target combo box to the Target of SelectedSpell
 		if (ComboBoxString_PropertyTarget)
 		{
+			//Set the selected option of the Target combo box to the Target of SelectedSpell
 			ComboBoxString_PropertyTarget->SetSelectedOption(UEnum::GetDisplayValueAsText(SelectedSpell->Target).ToString());
 		}
 
-		//Set the selected option of the Element combo box to the ElementType of SelectedSpell's BaseSpellDamage first element
 		if (ComboBoxString_PropertyElement)
 		{
+			//Set the selected option of the Element combo box to the ElementType of SelectedSpell's BaseSpellDamage first element
 			ComboBoxString_PropertyElement->SetSelectedOption(UEnum::GetDisplayValueAsText(SelectedSpell->SpellDamage[0].ElementType).ToString());
 		}
 
-		//Set the text of the Potency text box to DamageAmount from the same element
 		if (EditableTextBox_Potency)
 		{
-			EditableTextBox_Potency->SetText(UKismetTextLibrary::Conv_FloatToText(SelectedSpell->SpellDamage[0].DamageAmount, ERoundingMode::HalfToEven));
+			//Set the text of the Potency text box to DamageAmount from the same element
+			EditableTextBox_Potency->SetText(UKismetTextLibrary::Conv_FloatToText(SelectedSpell->BaseSpellDamage[0].DamageAmount, ERoundingMode::HalfToEven));
 		}
 
-		//If CanEdit from SelectedSpell is true, change the colour of the SaveChanges and DeleteSpell buttons to white. If false, make them dark grey.
 		if (Button_SaveChanges)
 		{
 			if (Button_DeleteSpell)
 			{
+				//If CanEdit from SelectedSpell equals true
 				if (SelectedSpell->bCanEdit)
 				{
+					//Change the colour of the SaveChangesand DeleteSpell buttons to white
 					Button_SaveChanges->SetColorAndOpacity(FLinearColor(1, 1, 1, 1));
 					Button_DeleteSpell->SetColorAndOpacity(FLinearColor(1, 1, 1, 1));
 				}
 				else
 				{
+					//If false, make them dark grey
 					Button_SaveChanges->SetColorAndOpacity(FLinearColor(0.1, 0.1, 0.1, 1));
 					Button_DeleteSpell->SetColorAndOpacity(FLinearColor(0.1, 0.1, 0.1, 1));
 				}
@@ -420,266 +475,201 @@ void USigilMenuSpellbook::ShowSpellProperties()
 	}
 }
 
+/// <summary>
+/// Populate NewSpell's properties so that it can overwrite the selected spell when the player clicks save changes.
+/// </summary>
 void USigilMenuSpellbook::SetNewSpellProperties()
 {
-	//Set NewSpellName to the text of the SpellName text box
-	if (EditableTextBox_SpellName)
+	if (SelectedSpell)
 	{
-		NewSpell_Name = UKismetStringLibrary::Conv_StringToName(EditableTextBox_SpellName->GetText().ToString());
+		NewSpell = SelectedSpell->GetSpellProperties();
 	}
 
-	//Set NewSpellForm to the selected option of the SpellForm combo box
+	if (EditableTextBox_SpellName)
+	{
+		//Set NewSpellName to the text of the SpellName text box
+		NewSpell.Name = UKismetStringLibrary::Conv_StringToName(EditableTextBox_SpellName->GetText().ToString());
+	}
+
 	if (ComboBoxString_PropertySpellForm)
 	{
+		//Set NewSpellForm to the selected option of the SpellForm combo box
 		int SelectedIndex = UKismetMathLibrary::Clamp(ComboBoxString_PropertySpellForm->GetSelectedIndex(), 0, SpellFormTypes.Num() - 1);
-		NewSpell_Form = SpellFormTypes[SelectedIndex];
+		NewSpell.Form = SpellFormTypes[SelectedIndex];
 	}
 
 	//Call ConvertSliderValues
 	ConvertSliderValues();
 
-	//Set NewSpellIsHoming to the value of IsChecked from the Homing check box
 	if (CheckBox_Homing)
 	{
-		bNewSpell_IsHoming = CheckBox_Homing->IsChecked();
+		//Set NewSpellIsHoming to the value of IsChecked from the Homing check box
+		NewSpell.bIsHoming = CheckBox_Homing->IsChecked();
 	}
 
-	//Set NewSpellSpellTarget to the selected option of the Target combo box
 	if (ComboBoxString_PropertyTarget)
 	{
+		//Set NewSpellSpellTarget to the selected option of the Target combo box
 		int SelectedIndex = UKismetMathLibrary::Clamp(ComboBoxString_PropertyTarget->GetSelectedIndex(), 0, SpellTargetTypes.Num() - 1);
-		NewSpell_Target = SpellTargetTypes[SelectedIndex];
+		NewSpell.Target = SpellTargetTypes[SelectedIndex];
 	}
 
-	//Set NewSpellSpellElement to the selected option of the Element combo box
+	FSpellElements NewSpellElements;
+
 	if (ComboBoxString_PropertyElement)
 	{
+		//Set NewSpellSpellElement to the selected option of the Element combo box
 		int SelectedIndex = UKismetMathLibrary::Clamp(ComboBoxString_PropertyElement->GetSelectedIndex(), 0, MagicElementTypes.Num() - 1);
-		NewSpell_MagicElement = MagicElementTypes[SelectedIndex];
+		NewSpellElements.ElementType = MagicElementTypes[SelectedIndex];
 	}
 
-	//Set NewSpellPotency to the text of the Potency text box if the value is numeric
 	if (EditableTextBox_Potency)
 	{
+		//Set NewSpellPotency to the text of the Potency text box if the value is numeric
 		if (UKismetStringLibrary::IsNumeric(EditableTextBox_Potency->GetText().ToString()))
 		{
-			NewSpell_Potency = UKismetStringLibrary::Conv_StringToFloat(EditableTextBox_Potency->GetText().ToString());
+			NewSpellElements.DamageAmount = UKismetStringLibrary::Conv_StringToFloat(EditableTextBox_Potency->GetText().ToString());
 		}
 	}
+
+	NewSpell.BaseSpellDamage.Empty();
+	NewSpell.BaseSpellDamage.Add(NewSpellElements);
 }
 
+/// <summary>
+/// Adds the selected spell to the spellbar at the bottom of the player's screen
+/// </summary>
 void USigilMenuSpellbook::AddSpellToSpellbar()
 {
+	//Cast the owning player controller to SigilPlayerController
 	if (ASigilPlayerController* PC = Cast<ASigilPlayerController>(GetOwningPlayer()))
 	{
+		//Validate SelectedSpell
 		if (SelectedSpell)
 		{
+			//Call AddSpellToSpellbar from SigilPlayerController, passing SelectedSpell as the argument
 			PC->AddSpellToSpellbar(SelectedSpell);
 		}
 	}
 }
 
+/// <summary>
+/// Creates a copy of the selected spell for the player to edit
+/// </summary>
 void USigilMenuSpellbook::CopySelectedSpell()
 {
+	//Validate SelectedSpell
 	if (SelectedSpell)
 	{
-		//Create a new DASpellInfo object and give it the same properties as SelectedSpell. Rename the spell and set CanEdit to true.
+		//Create a new SpellInfo object
 		UDA_SpellInfo* CopiedSpell = NewObject<UDA_SpellInfo>(this);
 
+		//Give the new object the same spell properties as SelectedSpell
 		CopiedSpell->SetSpellProperties(SelectedSpell->GetSpellProperties());
 		
+		//Rename the copied spell
 		FString NewName = "Copy of ";
 		NewName.Append(SelectedSpell->Name.ToString());
-
 		CopiedSpell->Name = UKismetStringLibrary::Conv_StringToName(NewName);
+
+		//Set bCanEdit to true
 		CopiedSpell->bCanEdit = true;
 
-		//Add the Copied spell to the player's spellbook component
+		//Add the copied spell to the player's Spellbook
 		if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 		{
 			SC->AddSpellToSpellbook(CopiedSpell);
 		}
-
+		
 		RefreshSpellbookSlots();
 	}
 }
 
+/// <summary>
+/// Creates a UDA_SpellInfo object with the default properties defined in this widget's blueprint
+/// </summary>
 void USigilMenuSpellbook::CreateNewSpell()
 {
-	//Create a new DASpellInfo object and set its properties
+	//Create a new SpellInfo object
 	UDA_SpellInfo* CreatedSpell = NewObject<UDA_SpellInfo>(this);
+
+	//Set bCanEdit to true
 	CreatedSpell->bCanEdit = true;
 
-	/*FSpellProperties NewSpellProperties;
-	NewSpellProperties.Name = FName("New Spell");
-	NewSpellProperties.Form = ESpellForm::Dart;
-	NewSpellProperties.BaseMPCost = 10.0f;
-	NewSpellProperties.BaseSpeed = 1000.0f;
-	NewSpellProperties.BaseAcceleration = 250.0f;
-
-	FSpellElements NewElement;
-	NewElement.ElementType = EMagicElementType::Aether;
-	NewElement.DamageAmount = 10.0f;
-	NewSpellProperties.BaseSpellDamage.Add(NewElement);
-
-	NewSpellProperties.MPCostMultiplier = 1.0f;
-	NewSpellProperties.DamageMultiplier = 1.0f;
-	NewSpellProperties.SpeedMultiplier = 1.0f;
-	NewSpellProperties.bIsHoming = false;
-	NewSpellProperties.Target = ESpellTarget::NotApplicable;*/
-
+	//Set the spell's properties using NewSpellDefaultProperties which is defined in blueprint
 	CreatedSpell->SetSpellProperties(NewSpellDefaultProperties);
 
-	//Add the new spell to the player's Spellbook and refresh the widget.
+	//Add the new spell to the player's Spellbook
 	if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 	{
 		SC->AddSpellToSpellbook(CreatedSpell);
 	}
 
+	//Refresh the widget
 	RefreshSpellbookSlots();
 }
 
+/// <summary>
+/// Deletes the selected UDA_SpellInfo object if it is editable
+/// </summary>
 void USigilMenuSpellbook::DeleteSelectedSpell()
 {
-	//Check that the spell can be edited before proceeding
+	//Validate SelectedSpell
 	if (SelectedSpell)
 	{
+		//Check that the spell can be edited before proceeding
 		if (SelectedSpell->bCanEdit)
 		{
+			//Cast the owning player controller's pawn to SigilCharacter
 			if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 			{
 				//Remove the spell from the player's spellbook component
 				if (SC->RemoveSpellFromSpellbook(SelectedSpell))
 				{
-					//Remove the spell from the player's Spell Bar
-					if (ASigilPlayerController* PC = Cast<ASigilPlayerController>(SC->GetOwner()))
-					{
-						PC->RemoveSpellFromSpellbar(SelectedSpell);
-					}
+					RemoveSelectedSpellFromSpellbar();
 				}
 			}
-		}
-
-		RefreshSpellbookSlots();
-	}
-}
-
-void USigilMenuSpellbook::RemoveSpellFromSpellbar()
-{
-	if (ASigilPlayerController* PC = Cast<ASigilPlayerController>(GetOwningPlayer()))
-	{
-		if (SelectedSpell)
-		{
-			PC->RemoveSpellFromSpellbar(SelectedSpell);
-		}
-	}
-}
-
-void USigilMenuSpellbook::SaveChangesToSpell()
-{
-	SetNewSpellProperties();
-
-	//Set the properties of SelectedSpells by calling SetSpellProperties from DASpellInfo
-	if (SelectedSpell)
-	{
-		if (SelectedSpell->bCanEdit)
-		{
-			SelectedSpell->Name = NewSpell_Name;
-
-			FSpellProperties NewSpellProperties;
-			NewSpellProperties.Name = NewSpell_Name;
-			NewSpellProperties.Form = NewSpell_Form;
-			NewSpellProperties.BaseMPCost = SelectedSpell->BaseMPCost;
-			NewSpellProperties.BaseSpeed = SelectedSpell->BaseSpeed;
-			NewSpellProperties.BaseAcceleration = SelectedSpell->BaseAcceleration;
-
-			NewSpellProperties.Thumbnail = SelectedSpell->Thumbnail;
-			NewSpellProperties.Mesh = SelectedSpell->Mesh;
-			NewSpellProperties.CastSFX = SelectedSpell->CastSFX;
-			NewSpellProperties.HitSFX = SelectedSpell->HitSFX;
-
-			FSpellElements NewElement;
-			NewElement.ElementType = NewSpell_MagicElement;
-			NewElement.DamageAmount = NewSpell_Potency;
-			NewSpellProperties.BaseSpellDamage.Add(NewElement);
-
-			NewSpellProperties.MPCostMultiplier = NewSpell_MPCostMultiplier;
-			NewSpellProperties.DamageMultiplier = NewSpell_DamageMultiplier;
-			NewSpellProperties.SpeedMultiplier = NewSpell_SpeedMultiplier;
-			NewSpellProperties.bIsHoming = bNewSpell_IsHoming;
-			NewSpellProperties.Target = NewSpell_Target;
-
-			SelectedSpell->SetSpellProperties(NewSpellProperties);
 
 			RefreshSpellbookSlots();
 		}
 	}
 }
 
-void USigilMenuSpellbook::PlayButtonAnimation(UWidgetAnimation* InAnimation, EUMGSequencePlayMode::Type PlayMode)
+/// <summary>
+/// Removes the selected spell from the spellbar at the bottom of the player's screen
+/// </summary>
+void USigilMenuSpellbook::RemoveSelectedSpellFromSpellbar()
 {
-	if (InAnimation)
+	//Cast the owning player controller to SigilPlayerController
+	if (ASigilPlayerController* PC = Cast<ASigilPlayerController>(GetOwningPlayer()))
 	{
-		PlayAnimation(InAnimation, 0, 1, PlayMode, 1.0f, false);
+		//Validate SelectedSpell
+		if (SelectedSpell)
+		{
+			//Remove the spell from the player's Spell Bar
+			PC->RemoveSpellFromSpellbar(SelectedSpell);
+		}
 	}
 }
 
-void USigilMenuSpellbook::PlayButtonAnimation_AddToSpellbar()
+/// <summary>
+/// Overwrites the FSpellProperties of the currently selected spell with NewSpell
+/// </summary>
+void USigilMenuSpellbook::SaveChangesToSpell()
 {
-	PlayButtonAnimation(Anim_ButtonPress_AddToSpellbar, EUMGSequencePlayMode::Forward);
-}
+	SetNewSpellProperties();
 
-void USigilMenuSpellbook::PlayButtonAnimation_AddToSpellbar_Reverse()
-{
-	PlayButtonAnimation(Anim_ButtonPress_AddToSpellbar, EUMGSequencePlayMode::Reverse);
-}
+	//Validate SelectedSpell
+	if (SelectedSpell)
+	{
+		//If the spell is editable
+		if (SelectedSpell->bCanEdit)
+		{
+			//Overwrite the properties of the SelectedSpell with the values changed by the player
+			SelectedSpell->SetSpellProperties(NewSpell);
 
-void USigilMenuSpellbook::PlayButtonAnimation_CopySpell()
-{
-	PlayButtonAnimation(Anim_ButtonPress_CopySpell, EUMGSequencePlayMode::Forward);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_CopySpell_Reverse()
-{
-	PlayButtonAnimation(Anim_ButtonPress_CopySpell, EUMGSequencePlayMode::Reverse);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_DeleteSpell()
-{
-	PlayButtonAnimation(Anim_ButtonPress_DeleteSpell, EUMGSequencePlayMode::Forward);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_DeleteSpell_Reverse()
-{
-	PlayButtonAnimation(Anim_ButtonPress_DeleteSpell, EUMGSequencePlayMode::Reverse);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_NewSpell()
-{
-	PlayButtonAnimation(Anim_ButtonPress_NewSpell, EUMGSequencePlayMode::Forward);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_NewSpell_Reverse()
-{
-	PlayButtonAnimation(Anim_ButtonPress_NewSpell, EUMGSequencePlayMode::Reverse);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_RemoveFromSpellbar()
-{
-	PlayButtonAnimation(Anim_ButtonPress_RemoveFromSpellbar, EUMGSequencePlayMode::Forward);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_RemoveFromSpellbar_Reverse()
-{
-	PlayButtonAnimation(Anim_ButtonPress_RemoveFromSpellbar, EUMGSequencePlayMode::Reverse);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_SaveChanges()
-{
-	PlayButtonAnimation(Anim_ButtonPress_SaveChanges, EUMGSequencePlayMode::Forward);
-}
-
-void USigilMenuSpellbook::PlayButtonAnimation_SaveChanges_Reverse()
-{
-	PlayButtonAnimation(Anim_ButtonPress_SaveChanges, EUMGSequencePlayMode::Reverse);
+			//Refresh the widget
+			RefreshSpellbookSlots();
+		}
+	}
 }

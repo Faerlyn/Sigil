@@ -12,33 +12,45 @@ void USigilWindowFrame::NativePreConstruct()
 	{
 		WindowContentWidget = Cast<USigilMenuWidgetBase>(CreateWidget(GetOwningPlayer(), WindowContent));
 
-		//Add the created widget to the named slot as a child
-		NamedSlot_WindowContent->AddChild(WindowContentWidget);
+		if (WindowContentWidget)
+		{
+			//Add the created widget to the named slot as a child
+			NamedSlot_WindowContent->AddChild(WindowContentWidget);
 
-		//Get the created widget's name and set it as the name of the window
-		FText NewWindowName = WindowContentWidget->GetWidgetName();
-		WindowName = NewWindowName;
+			//Get the created widget's name and set it as the name of the window
+			WindowName = WindowContentWidget->GetWidgetName();
+		}
 	}
-
 }
 
 void USigilWindowFrame::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	Border_WindowTitleBar->OnMouseButtonDownEvent.BindUFunction(this, "WindowTitleBar_OnMouseButtonDownEvent");
-	Border_WindowTitleBar->OnMouseButtonUpEvent.BindUFunction(this, "WindowTitleBar_OnMouseButtonUpEvent");
+	//Bind textblock delegates
+	TextBlock_WindowTitle->TextDelegate.BindDynamic(this, &USigilWindowFrame::Get_TextBlock_WindowTitle_Text);
+	TextBlock_WindowTitle->SynchronizeProperties();
 
-	Border_ResizeEast->OnMouseButtonDownEvent.BindUFunction(this, "Border_ResizeEast_OnMouseButtonDownEvent");
-	Border_ResizeEast->OnMouseButtonUpEvent.BindUFunction(this, "Border_ResizeEast_OnMouseButtonUpEvent");
+	//Bind border delegates
+	Border_WindowTitleBar->OnMouseButtonDownEvent.BindDynamic(this, &USigilWindowFrame::WindowTitleBar_OnMouseButtonDownEvent);
+	Border_WindowTitleBar->OnMouseButtonUpEvent.BindDynamic(this, &USigilWindowFrame::WindowTitleBar_OnMouseButtonUpEvent);
+	Border_WindowTitleBar->SynchronizeProperties();
 
-	Border_ResizeSouth->OnMouseButtonDownEvent.BindUFunction(this, "Border_ResizeSouth_OnMouseButtonDownEvent");
-	Border_ResizeSouth->OnMouseButtonUpEvent.BindUFunction(this, "Border_ResizeSouth_OnMouseButtonUpEvent");
+	Border_ResizeEast->OnMouseButtonDownEvent.BindDynamic(this, &USigilWindowFrame::Border_ResizeEast_OnMouseButtonDownEvent);
+	Border_ResizeEast->OnMouseButtonUpEvent.BindDynamic(this, &USigilWindowFrame::Border_ResizeEast_OnMouseButtonUpEvent);
+	Border_ResizeEast->SynchronizeProperties();
 
-	Border_ResizeSouthEast->OnMouseButtonDownEvent.BindUFunction(this, "Border_ResizeSouthEast_OnMouseButtonDownEvent");
-	Border_ResizeSouthEast->OnMouseButtonUpEvent.BindUFunction(this, "Border_ResizeSouthEast_OnMouseButtonUpEvent");
+	Border_ResizeSouth->OnMouseButtonDownEvent.BindDynamic(this, &USigilWindowFrame::Border_ResizeSouth_OnMouseButtonDownEvent);
+	Border_ResizeSouth->OnMouseButtonUpEvent.BindDynamic(this, &USigilWindowFrame::Border_ResizeSouth_OnMouseButtonUpEvent);
+	Border_ResizeSouth->SynchronizeProperties();
 
-	Button_CloseWindow->OnClicked.AddDynamic(this, &USigilWindowFrame::OnClicked_Button_CloseWindow);
+	Border_ResizeSouthEast->OnMouseButtonDownEvent.BindDynamic(this, &USigilWindowFrame::Border_ResizeSouthEast_OnMouseButtonDownEvent);
+	Border_ResizeSouthEast->OnMouseButtonUpEvent.BindDynamic(this, &USigilWindowFrame::Border_ResizeSouthEast_OnMouseButtonUpEvent);
+	Border_ResizeSouthEast->SynchronizeProperties();
+
+	//Bind button delegates
+	Button_CloseWindow->OnClicked.AddUniqueDynamic(this, &USigilWindowFrame::OnClicked_Button_CloseWindow);
+	Button_CloseWindow->SynchronizeProperties();
 
 	SetMinimumDesiredSize();
 	ResizeWindowToMinimum();
@@ -162,6 +174,7 @@ void USigilWindowFrame::GetNewWindowSize()
 	//Get the mouse's current position
 	MousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(this);
 
+	//Adds a small offset to the resize, the window will shrink slightly when resizing starts if this offset is not added
 	FVector2D bump(1,1);
 
 	//NewWindowSize = (MousePosition + 1) - WindowPosition
@@ -218,10 +231,13 @@ FEventReply USigilWindowFrame::Border_ResizeEast_OnMouseButtonDownEvent(FGeometr
 
 FEventReply USigilWindowFrame::Border_ResizeEast_OnMouseButtonUpEvent(FGeometry MyGeometry, const FPointerEvent& MouseEvent)
 {
-	//If the left mouse button is not being held down, set bWindowIsResizable and bWindowIsResizableLeftRightOnly to false
+	//If the left mouse button is not being held down
 	if (!UKismetInputLibrary::PointerEvent_IsMouseButtonDown(MouseEvent, EKeys::LeftMouseButton))
 	{
+		//Set bWindowIsResizable to false
 		SetWindowIsResizeable(false);
+
+		//Set bWindowIsResizableLeftRightOnly to false
 		SetWindowIsResizeableLeftRightOnly(false);
 
 		return FEventReply(true);
@@ -243,10 +259,13 @@ FEventReply USigilWindowFrame::Border_ResizeSouth_OnMouseButtonDownEvent(FGeomet
 
 FEventReply USigilWindowFrame::Border_ResizeSouth_OnMouseButtonUpEvent(FGeometry MyGeometry, const FPointerEvent& MouseEvent)
 {
-	//If the left mouse button is not being held down, set bWindowIsResizable and bWindowIsResizableUpDownOnly to false
+	//If the left mouse button is not being held down
 	if (!UKismetInputLibrary::PointerEvent_IsMouseButtonDown(MouseEvent, EKeys::LeftMouseButton))
 	{
+		//Set bWindowIsResizable to false
 		SetWindowIsResizeable(false);
+
+		//Set bWindowIsResizableUpDownOnly to false
 		SetWindowIsResizeableUpDownOnly(false);
 
 		return FEventReply(true);
@@ -265,9 +284,10 @@ FEventReply USigilWindowFrame::Border_ResizeSouthEast_OnMouseButtonDownEvent(FGe
 
 FEventReply USigilWindowFrame::Border_ResizeSouthEast_OnMouseButtonUpEvent(FGeometry MyGeometry, const FPointerEvent& MouseEvent)
 {
-	//If the left mouse button is not being held down, set bWindowIsResizable to false
+	//If the left mouse button is not being held down
 	if (!UKismetInputLibrary::PointerEvent_IsMouseButtonDown(MouseEvent, EKeys::LeftMouseButton))
 	{
+		//Set bWindowIsResizable to false
 		SetWindowIsResizeable(false);
 
 		return FEventReply(true);
@@ -295,14 +315,16 @@ void USigilWindowFrame::ReleaseWidget(const FPointerEvent& MouseEvent)
 
 bool USigilWindowFrame::ToggleIsInViewPort()
 {
-	//If the widget is in the viewport, remove it. If not, add it to the player's screen.
+	//If the widget is in the viewport
 	if (this->IsInViewport())
 	{
+		//Remove it from the viewport
 		this->RemoveFromViewport();
 		return false;
 	}
 	else
 	{
+		//If not, add it to the player's screen
 		return this->AddToPlayerScreen();
 	}
 }

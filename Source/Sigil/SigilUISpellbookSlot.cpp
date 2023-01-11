@@ -7,15 +7,16 @@
 
 FReply USigilUISpellbookSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	//If the left mouse button is being held, call the SetNewSelectedSlot function from the Spellbook widget and try to detect if the user is trying to drag the widget.
+	//If the left mouse button is being held
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
 	{
-
+		//Call the SetNewSelectedSlot function from the Spellbook widget
 		if (USigilMenuSpellbook* SpellbookWidget = Cast<USigilMenuSpellbook>(OwningWidget))
 		{
 			SpellbookWidget->SetNewSelectedSlot(this);
 		}
 		
+		//Try to detect if the user is trying to drag the widget
 		return UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton).NativeReply;
 	}
 	else

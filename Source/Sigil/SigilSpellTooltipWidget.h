@@ -30,6 +30,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn = "true", BlueprintVisible = "true"), Category = "Reference")
 		UDA_SpellInfo* SpellRef;
 
+	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "Sigil Button | Animations")
+		UWidgetAnimation* Anim_FadeIn = nullptr;
+
 	UPROPERTY(EditAnywhere, Category = "Reference")
 		TSubclassOf<ASigilSpellCaptureActor> SpellCaptureActorBP;
 
@@ -73,25 +76,25 @@ protected:
 		void Get_Image_SpellPreview_Brush();
 
 	UFUNCTION(BlueprintCallable)
-		void Get_TextBlock_Name_Text();
+		FText Get_TextBlock_Name_Text();
 
 	UFUNCTION(BlueprintCallable)
-		void Get_TextBlock_Form_Text();
+		FText Get_TextBlock_Form_Text();
 
 	UFUNCTION(BlueprintCallable)
-		void Get_TextBlock_Target_Text();
+		FText Get_TextBlock_Target_Text();
 
 	UFUNCTION(BlueprintCallable)
-		void Get_TextBlock_MPCost_Text();
+		FText Get_TextBlock_MPCost_Text();
 
 	UFUNCTION(BlueprintCallable)
-		void Get_TextBlock_Speed_Text();
+		FText Get_TextBlock_Speed_Text();
 
 	UFUNCTION(BlueprintCallable)
-		void Get_TextBlock_Damage_Text();
+		FText Get_TextBlock_Damage_Text();
 
 	UFUNCTION(BlueprintCallable)
-		void Get_TextBlock_Damage_ColorAndOpacity();
+		FSlateColor Get_TextBlock_Damage_ColorAndOpacity();
 
 	UFUNCTION()
 		void CreateMeshCaptureActor();

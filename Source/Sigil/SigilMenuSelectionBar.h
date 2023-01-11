@@ -10,6 +10,7 @@
 #include "SigilCharacter.h"
 #include "UDA_SpellInfo.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "SigilMenuSelectionBar.generated.h"
 
 /**
@@ -24,7 +25,6 @@ public:
 
 protected:
 
-	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
@@ -42,7 +42,7 @@ protected:
 		USigilUISpellSelectionSlot* CurrentlySelectedSlot;
 
 	UPROPERTY(VisibleAnywhere, Category = "Selection Bar | Slots")
-		int SelectedSlotIndex;
+		int SelectedSlotIndex = 0;
 
 	UFUNCTION()
 		void PassIndexToPlayerCharacter();
@@ -57,7 +57,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void RefreshWidgetSlots();
-
-
 
 };

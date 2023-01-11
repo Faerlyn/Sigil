@@ -18,6 +18,8 @@
 #include "Components/ScaleBoxSlot.h"
 #include "SigilUISpellbookSlot.h"
 #include "SigilSpellTooltipWidget.h"
+#include "SigilUIPercentageSlider.h"
+#include "SigilUIButtonBasic.h"
 #include "SigilCharacter.h"
 #include "SigilPlayerController.h"
 #include "AssetRegistry/AssetRegistryModule.h"
@@ -42,22 +44,22 @@ protected:
 		USizeBox* Spellbook;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* Button_AddToSpellbar;
+		USigilUIButtonBasic* Button_AddToSpellbar;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* Button_CopySpell;
+		USigilUIButtonBasic* Button_CopySpell;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* Button_DeleteSpell;
+		USigilUIButtonBasic* Button_DeleteSpell;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* Button_NewSpell;
+		USigilUIButtonBasic* Button_NewSpell;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* Button_RemoveFromSpellbar;
+		USigilUIButtonBasic* Button_RemoveFromSpellbar;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* Button_SaveChanges;
+		USigilUIButtonBasic* Button_SaveChanges;
 
 	UPROPERTY(meta = (BindWidget))
 		UScaleBox* ScaleBox_Tooltip;
@@ -99,13 +101,13 @@ protected:
 		UEditableTextBox* EditableTextBox_Potency;
 
 	UPROPERTY(meta = (BindWidget))
-		USlider* Slider_MPCostPercent;
+		USigilUIPercentageSlider* Slider_MPCostPercent;
 	
 	UPROPERTY(meta = (BindWidget))
-		USlider* Slider_DamagePercent;
+		USigilUIPercentageSlider* Slider_DamagePercent;
 
 	UPROPERTY(meta = (BindWidget))
-		USlider* Slider_SpeedPercent;
+		USigilUIPercentageSlider* Slider_SpeedPercent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Spellbook | Reference")
 		UDA_SpellInfo* SelectedSpell;
@@ -118,6 +120,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 		TArray<EMagicElementType> MagicElementTypes;
+
+	UPROPERTY(VisibleAnywhere, Category = "Spellbook | New Spell")
+		FSpellProperties NewSpell;
 
 	UPROPERTY(VisibleAnywhere, Category = "Spellbook | New Spell")
 		FName NewSpell_Name;
@@ -146,120 +151,62 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Spellbook | New Spell")
 		float NewSpell_Potency;
 
-	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "Spellbook | Animations")
-		UWidgetAnimation* Anim_ButtonPress_AddToSpellbar = nullptr;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "Spellbook | Animations")
-		UWidgetAnimation* Anim_ButtonPress_CopySpell = nullptr;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "Spellbook | Animations")
-		UWidgetAnimation* Anim_ButtonPress_DeleteSpell = nullptr;	
-
-	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "Spellbook | Animations")
-		UWidgetAnimation* Anim_ButtonPress_NewSpell = nullptr;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "Spellbook | Animations")
-		UWidgetAnimation* Anim_ButtonPress_RemoveFromSpellbar = nullptr;
-
-	UPROPERTY(EditAnywhere, meta = (BindWidgetAnim), Transient, Category = "Spellbook | Animations")
-		UWidgetAnimation* Anim_ButtonPress_SaveChanges = nullptr;
-
 	UPROPERTY(EditAnywhere, Category = "Spellbook | New Spell Defaults")
 		FSpellProperties NewSpellDefaultProperties;
 
+	float ConvertFloatToPercentage(float InValue);
 
-		float ConvertFloatToPercentage(float InValue);
+	float ConvertPercentageToFloat(float InValue);
 
-		float ConvertPercentageToFloat(float InValue);
+	void CreateSpellbookTooltipWidget();
 
-		void Get_Slider_MPCostPercent_ToolTipText();
+	void RefreshSpellbookSlots();
 
-		void Get_Slider_DamagePercent_ToolTipText();
+	void SetSelectedSlot();
 
-		void Get_Slider_SpeedPercent_ToolTipText();
+	void PopulateCoreSlots();
 
-		FText CreateSliderTooltip(USlider* InSlider);
+	void PopulatePlayerSlots();
 
-		void CreateSpellbookTooltipWidget();
+	UFUNCTION()
+		FText Get_EditableTextBox_SpellName_HintText();
 
-		void RefreshSpellbookSlots();
+	UFUNCTION()
+		FText Get_EditableTextBox_Potency_HintText();
 
-		void SetSelectedSlot();
+	void PopulateComboBoxes();
 
-		void PopulateCoreSlots();
+	void ClearComboBoxes();
 
-		void PopulatePlayerSlots();
+	void ConvertSliderValues();
 
-		void Get_EditableTextBox_SpellName_HintText();
+	void ClearAllWrapBoxSlots();
 
-		void Get_EditableTextBox_Potency_HintText();
-
-		void PopulateComboBoxes();
-
-		void ClearComboBoxes();
-
-		void ConvertSliderValues();
-
-		void ClearAllWrapBoxSlots();
-
-		bool SearchWrapBoxForSelectedSpell(UWrapBox* InWrapBox);
+	bool SearchWrapBoxForSelectedSpell(UWrapBox* InWrapBox);
 			
-		void SetWidgetMinimumSize();
+	void SetWidgetMinimumSize();
 			
-		void ShowSpellProperties();
+	void ShowSpellProperties();
 			
-		void SetNewSpellProperties();
+	void SetNewSpellProperties();
 			
-		UFUNCTION()
-		void AddSpellToSpellbar();
+	UFUNCTION()
+	void AddSpellToSpellbar();
 
-		UFUNCTION()
-		void CopySelectedSpell();	
+	UFUNCTION()
+	void CopySelectedSpell();	
 
-		UFUNCTION()
-		void CreateNewSpell();
+	UFUNCTION()
+	void CreateNewSpell();
 
-		UFUNCTION()
-		void DeleteSelectedSpell();
+	UFUNCTION()
+	void DeleteSelectedSpell();
 
-		UFUNCTION()
-		void RemoveSpellFromSpellbar();
+	UFUNCTION()
+	void RemoveSelectedSpellFromSpellbar();
 
-		UFUNCTION()
-		void SaveChangesToSpell();
-
-		UFUNCTION()
-		void PlayButtonAnimation(UWidgetAnimation* InAnimation, EUMGSequencePlayMode::Type PlayMode);
-
-		UFUNCTION()
-		void PlayButtonAnimation_AddToSpellbar();
-		UFUNCTION()
-		void PlayButtonAnimation_AddToSpellbar_Reverse();
-
-		UFUNCTION()
-		void PlayButtonAnimation_CopySpell();
-		UFUNCTION()
-		void PlayButtonAnimation_CopySpell_Reverse();
-
-		UFUNCTION()
-		void PlayButtonAnimation_DeleteSpell();
-		UFUNCTION()
-		void PlayButtonAnimation_DeleteSpell_Reverse();
-
-		UFUNCTION()
-		void PlayButtonAnimation_NewSpell();
-		UFUNCTION()
-		void PlayButtonAnimation_NewSpell_Reverse();
-
-		UFUNCTION()
-		void PlayButtonAnimation_RemoveFromSpellbar();
-		UFUNCTION()
-		void PlayButtonAnimation_RemoveFromSpellbar_Reverse();
-
-		UFUNCTION()
-		void PlayButtonAnimation_SaveChanges();
-		UFUNCTION()
-		void PlayButtonAnimation_SaveChanges_Reverse();
+	UFUNCTION()
+	void SaveChangesToSpell();
 
 public:
 
