@@ -56,6 +56,9 @@ public:
 		void SelectPreviousSlot();
 
 	UFUNCTION(BlueprintCallable)
+		void SelectSpecificSlot(int SpecificSlotIndex);
+
+	UFUNCTION(BlueprintCallable)
 		void RefreshWidgetSlots();
 
 };

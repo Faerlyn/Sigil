@@ -60,3 +60,24 @@ void UCharacterAttributesComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	}
 }
 
+void UCharacterAttributesComponent::ReduceHitPoints(float Value)
+{
+	HitPoints -= Value;
+
+	HitPoints = UKismetMathLibrary::Clamp(HitPoints, 0.0f, MaximumHitPoints);
+}
+
+void UCharacterAttributesComponent::ReduceMagicPoints(float Value)
+{
+	MagicPoints -= Value;
+
+	MagicPoints = UKismetMathLibrary::Clamp(MagicPoints, 0.0f, MaximumMagicPoints);
+}
+
+void UCharacterAttributesComponent::ReduceStaminaPoints(float Value)
+{ 
+	StaminaPoints -= Value;
+
+	StaminaPoints = UKismetMathLibrary::Clamp(StaminaPoints, 0.0f, MaximumStaminaPoints);
+}
+

@@ -6,6 +6,7 @@
 #include "SigilUISpellSlot.h"
 #include "Components/TextBlock.h"
 #include "SigilPlayerController.h"
+#include "SigilCharacter.h"
 #include "SigilUISpellSelectionSlot.generated.h"
 
 /**

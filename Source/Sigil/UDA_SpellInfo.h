@@ -4,39 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Engine/DataTable.h"
+#include "UDA_SpellMap.h"
 #include "UDA_SpellInfo.generated.h"
-
-UENUM(BlueprintType)
-enum class EMagicElementType : uint8
-{
-	None			UMETA(Hidden),
-	Aether			UMETA(DisplayName = "Aether"),
-	Air				UMETA(DisplayName = "Air"),
-	Dark			UMETA(DisplayName = "Dark"),
-	Earth			UMETA(DisplayName = "Earth"),
-	Fire			UMETA(DisplayName = "Fire"),
-	Light			UMETA(DisplayName = "Light"),
-	Metal			UMETA(DisplayName = "Metal"),
-	Nature			UMETA(DisplayName = "Nature"),
-	Water			UMETA(DisplayName = "Water"),
-};
-ENUM_RANGE_BY_FIRST_AND_LAST(EMagicElementType, EMagicElementType::Aether, EMagicElementType::Water)
-
-UENUM(BlueprintType)
-enum class ESpellForm : uint8
-{
-	None			UMETA(Hidden),
-	Aura			UMETA(DisplayName = "Aura"),
-	Breath			UMETA(DisplayName = "Breath"),
-	Dart			UMETA(DisplayName = "Dart"),
-	Enchant			UMETA(DisplayName = "Enchant"),
-	Orb				UMETA(DisplayName = "Orb"),
-	Ray				UMETA(DisplayName = "Ray"),
-	Vortex			UMETA(DisplayName = "Vortex"),
-	Wall			UMETA(DisplayName = "Wall"),
-	Weapon			UMETA(DisplayName = "Weapon"),
-};
-ENUM_RANGE_BY_FIRST_AND_LAST(ESpellForm, ESpellForm::Aura, ESpellForm::Weapon)
 
 UENUM(BlueprintType)
 enum class ESpellTarget : uint8
@@ -73,8 +43,8 @@ struct FSpellProperties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
 		UTexture2D* Thumbnail;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
-		UStaticMesh* Mesh;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
+		//UStaticMesh* Mesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
 		USoundWave* CastSFX;
@@ -134,6 +104,9 @@ public:
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UDA_SpellMap* SpellMap;
+
 	UFUNCTION(BlueprintCallable)
 		void SetSpellProperties(FSpellProperties InSpellProperties);
 
@@ -149,8 +122,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
 		UTexture2D* Thumbnail;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell Details")
 		UStaticMesh* Mesh;
+
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell Details")
+		UMaterialInstance* MagicMaterial;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell Details")
+		UMaterialInstance* MagicMaterialEmissive;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell Details")
+		FLinearColor PrimaryColour;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell Details")
+		FLinearColor SecondaryColour;*/
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell Details")
+		FMagicElementMaterials MagicElementMaterials;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
 		USoundWave* CastSFX;
@@ -205,5 +193,8 @@ protected:
 
 	//One function to initiate the calculations
 	UFUNCTION(BlueprintCallable)
-	void CalculateFinalStats();
+		void CalculateFinalStats();
+
+	UFUNCTION()
+		void SpellMapUpdate();
 };

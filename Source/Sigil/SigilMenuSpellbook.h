@@ -154,6 +154,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Spellbook | New Spell Defaults")
 		FSpellProperties NewSpellDefaultProperties;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spellbook | New Spell Defaults")
+		UDA_SpellMap* SpellMap;
+
 	float ConvertFloatToPercentage(float InValue);
 
 	float ConvertPercentageToFloat(float InValue);

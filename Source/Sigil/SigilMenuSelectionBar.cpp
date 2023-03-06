@@ -19,7 +19,10 @@ bool USigilMenuSelectionBar::NativeOnDrop(const FGeometry& InGeometry, const FDr
 		if (ASigilPlayerController* PC = Cast<ASigilPlayerController>(GetOwningPlayer()))
 		{
 			//Add the dropped spell to the player's spellbar.
-			PC->AddSpellToSpellbar(DroppedUISlot->SlotSpellInfo);
+			//PC->AddSpellToSpellbar(DroppedUISlot->SlotSpellInfo);
+			Cast<ASigilCharacter>(PC->GetPawn())->SpellcastingComponent->AddNewPreparedSpell(DroppedUISlot->SlotSpellInfo);
+
+			RefreshWidgetSlots();
 
 			//Return true to show that the payload was received successfully
 			return true;
@@ -35,71 +38,107 @@ void USigilMenuSelectionBar::PassIndexToPlayerCharacter()
 	if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 	{
 		//Set SigilCharacter's selected spell index to the value of SelectedSlotIndex 
-		SC->SetSelectedSpellIndex(SelectedSlotIndex);
+		SC->SpellcastingComponent->SetSelectedSpellIndex(SelectedSlotIndex);
 	}
 }
 
 void USigilMenuSelectionBar::SelectNextSlot()
 {
-	//Check if the element of SelectionSlots at SelectedSlotIndex is valid
-	if (SelectionSlots[SelectedSlotIndex])
+	if (!SelectionSlots.IsEmpty())
 	{
-		//Set IsSelected to false for that element
-		SelectionSlots[SelectedSlotIndex]->SetIsSelected(false);
-	}
+		//Check if the element of SelectionSlots at SelectedSlotIndex is valid
+		if (SelectionSlots[SelectedSlotIndex])
+		{
+			//Set IsSelected to false for that element
+			SelectionSlots[SelectedSlotIndex]->SetIsSelected(false);
+		}
 
-	//If incrementing SelectedSlotIndex would result in a value greater than the length of SelectionSlots
-	if ((SelectedSlotIndex + 1) > (SelectionSlots.Num() - 1))
-	{
-		//Set SelectedSlotIndex to 0
-		SelectedSlotIndex = 0;
-	}
-	else
-	{
-		//Otherwise, increment SelectedSlotIndex
-		SelectedSlotIndex++;
-	}
+		//If incrementing SelectedSlotIndex would result in a value greater than the length of SelectionSlots
+		if ((SelectedSlotIndex + 1) > (SelectionSlots.Num() - 1))
+		{
+			//Set SelectedSlotIndex to 0
+			SelectedSlotIndex = 0;
+		}
+		else
+		{
+			//Otherwise, increment SelectedSlotIndex
+			SelectedSlotIndex++;
+		}
 
-	//Check if the element of SelectionSlots at SelectedSlotIndex is valid
-	if (SelectionSlots[SelectedSlotIndex])
-	{
-		//Set IsSelected to true for that element
-		SelectionSlots[SelectedSlotIndex]->SetIsSelected(true);
+		//Check if the element of SelectionSlots at SelectedSlotIndex is valid
+		if (SelectionSlots[SelectedSlotIndex])
+		{
+			//Set IsSelected to true for that element
+			SelectionSlots[SelectedSlotIndex]->SetIsSelected(true);
 
-		//Pass the index to the player character
-		PassIndexToPlayerCharacter();
+			//Pass the index to the player character
+			PassIndexToPlayerCharacter();
+		}
 	}
 }
 
 void USigilMenuSelectionBar::SelectPreviousSlot()
 {
-	//Check if the element of SelectionSlots at SelectedSlotIndex is valid
-	if (SelectionSlots[SelectedSlotIndex])
+	if (!SelectionSlots.IsEmpty())
 	{
-		//Set IsSelected to false for that element
-		SelectionSlots[SelectedSlotIndex]->SetIsSelected(false);
-	}
+		//Check if the element of SelectionSlots at SelectedSlotIndex is valid
+		if (SelectionSlots[SelectedSlotIndex])
+		{
+			//Set IsSelected to false for that element
+			SelectionSlots[SelectedSlotIndex]->SetIsSelected(false);
+		}
 
-	//If Decrementing SelectedSlotIndex would result in a value less than zero
-	if ((SelectedSlotIndex - 1) < 0)
-	{
-		//Set SelectedSlotIndex to the last index of the array
-		SelectedSlotIndex = SelectionSlots.Num() - 1;
-	}
-	else
-	{
-		//Otherwise, decrement SelectedSlotIndex
-		SelectedSlotIndex--;
-	}
+		//If Decrementing SelectedSlotIndex would result in a value less than zero
+		if ((SelectedSlotIndex - 1) < 0)
+		{
+			//Set SelectedSlotIndex to the last index of the array
+			SelectedSlotIndex = SelectionSlots.Num() - 1;
+		}
+		else
+		{
+			//Otherwise, decrement SelectedSlotIndex
+			SelectedSlotIndex--;
+		}
 
-	//Check if the element of SelectionSlots at SelectedSlotIndex is valid
-	if (SelectionSlots[SelectedSlotIndex])
-	{
-		//Set IsSelected to true for that element
-		SelectionSlots[SelectedSlotIndex]->SetIsSelected(true);
+		//Check if the element of SelectionSlots at SelectedSlotIndex is valid
+		if (SelectionSlots[SelectedSlotIndex])
+		{
+			//Set IsSelected to true for that element
+			SelectionSlots[SelectedSlotIndex]->SetIsSelected(true);
 
-		//Pass the index to the player character
-		PassIndexToPlayerCharacter();
+			//Pass the index to the player character
+			PassIndexToPlayerCharacter();
+		}
+	}
+}
+
+void USigilMenuSelectionBar::SelectSpecificSlot(int SpecificSlotIndex)
+{
+	if (!SelectionSlots.IsEmpty())
+	{
+		//Check if the element of SelectionSlots at SelectedSlotIndex is valid
+		if (SelectionSlots[SelectedSlotIndex])
+		{
+			//Set IsSelected to false for that element
+			SelectionSlots[SelectedSlotIndex]->SetIsSelected(false);
+		}
+
+		//Check if the provided index is valid
+		if (SpecificSlotIndex >= 0 && SpecificSlotIndex <= SelectionSlots.Num()-1)
+		{
+			//Check if the element of SelectionSlots at SpecificSlotIndex is valid
+			if (SelectionSlots[SpecificSlotIndex])
+			{
+				//Set IsSelected to true for that element
+				SelectionSlots[SpecificSlotIndex]->SetIsSelected(true);
+
+				//Set SelectedSlotIndex to SpecificSlotIndex
+				SelectedSlotIndex = SpecificSlotIndex;
+
+				//Pass the index to the player character
+				PassIndexToPlayerCharacter();
+			}
+		}
 	}
 }
 
@@ -119,7 +158,7 @@ void USigilMenuSelectionBar::RefreshWidgetSlots()
 	if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 	{
 
-		TArray<UDA_SpellInfo*> PreparedSpellsArray = SC->SpellcastingComponent->PreparedSpells;
+		TArray<UDA_SpellInfo*> PreparedSpellsArray = SC->SpellcastingComponent->GetPreparedSpells();
 
 		//If the PreparedSpells array is not empty
 		if (!PreparedSpellsArray.IsEmpty())

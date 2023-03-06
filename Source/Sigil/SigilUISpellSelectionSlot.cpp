@@ -18,7 +18,10 @@ void USigilUISpellSelectionSlot::NativeOnDragDetected(const FGeometry& InGeometr
 	if (ASigilPlayerController* PC = Cast<ASigilPlayerController>(GetOwningPlayer()))
 	{
 		//Remove it from the player's spellbar
-		PC->RemoveSpellFromSpellbar(SlotSpellInfo);
+		//PC->RemoveSpellFromSpellbar(SlotSpellInfo);
+		Cast<ASigilCharacter>(PC->GetPawn())->SpellcastingComponent->RemovePreparedSpell(SlotSpellInfo);
+
+		PC->RequestRefreshSpellBar();
 
 		//Set bIsSelected to false
 		SetIsSelected(false);
@@ -29,7 +32,7 @@ void USigilUISpellSelectionSlot::SetInitialVariables(UDA_SpellInfo* InSpellInfo,
 {
 	Super::SetInitialVariables(InSpellInfo);
 
-	SlotHotkey = inSlotHotkey;
+	SlotHotkey = inSlotHotkey + 1;
 
 	SlotHotkey_Text->Text = UKismetTextLibrary::Conv_IntToText(SlotHotkey);
 }

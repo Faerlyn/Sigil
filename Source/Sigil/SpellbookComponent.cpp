@@ -31,3 +31,26 @@ void USpellbookComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
+void USpellbookComponent::AddSpellToSpellbook(UDA_SpellInfo* InSpellInfo)
+{
+	if (InSpellInfo)
+	{
+		PlayerSpells.Add(InSpellInfo);
+	}
+}
+
+bool USpellbookComponent::RemoveSpellFromSpellbook(UDA_SpellInfo* InSpellInfo)
+{
+	if (InSpellInfo)
+	{
+		if (PlayerSpells.IsValidIndex(PlayerSpells.Find(InSpellInfo)))
+		{
+			PlayerSpells.Remove(InSpellInfo);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+

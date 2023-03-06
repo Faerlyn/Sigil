@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "CharacterAttributesComponent.generated.h"
 
 
@@ -25,13 +26,13 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-		void ReduceHitPoints(float Value) { HitPoints -= Value; }
+		void ReduceHitPoints(float Value);
 
 	UFUNCTION(BlueprintCallable)
-		void ReduceMagicPoints(float Value) { MagicPoints -= Value; }
+		void ReduceMagicPoints(float Value);
 
 	UFUNCTION(BlueprintCallable)
-		void ReduceStaminaPoints(float Value) { StaminaPoints -= Value; }
+		void ReduceStaminaPoints(float Value);
 
 protected:
 

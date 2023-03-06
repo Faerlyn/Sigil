@@ -10,6 +10,8 @@ void UDA_SpellInfo::PostEditChangeProperty(FPropertyChangedEvent& PropertyChange
 		Target = ESpellTarget::NotApplicable;
 	}
 
+	SpellMapUpdate();
+
 	CalculateFinalStats();
 }
 
@@ -19,7 +21,7 @@ void UDA_SpellInfo::SetSpellProperties(FSpellProperties InSpellProperties)
 	{
 		Name = InSpellProperties.Name;
 		Thumbnail = InSpellProperties.Thumbnail;
-		Mesh = InSpellProperties.Mesh;
+		//Mesh = InSpellProperties.Mesh;
 		CastSFX = InSpellProperties.CastSFX;
 		HitSFX = InSpellProperties.HitSFX;
 		Form = InSpellProperties.Form;
@@ -33,6 +35,7 @@ void UDA_SpellInfo::SetSpellProperties(FSpellProperties InSpellProperties)
 		bIsHoming = InSpellProperties.bIsHoming;
 		Target = InSpellProperties.Target;
 
+		SpellMapUpdate();
 		CalculateFinalStats();
 	}
 }
@@ -43,7 +46,7 @@ FSpellProperties UDA_SpellInfo::GetSpellProperties()
 
 	OutSpellProperties.Name = Name;
 	OutSpellProperties.Thumbnail = Thumbnail;
-	OutSpellProperties.Mesh = Mesh;
+	//OutSpellProperties.Mesh = Mesh;
 	OutSpellProperties.CastSFX = CastSFX;
 	OutSpellProperties.HitSFX = HitSFX;
 	OutSpellProperties.Form = Form;
@@ -88,4 +91,27 @@ void UDA_SpellInfo::CalculateFinalStats()
 	CalculateMPCost();
 	CalculateSpellDamage();
 	CalculateSpeed();
+}
+
+void UDA_SpellInfo::SpellMapUpdate()
+{
+	if (SpellMap)
+	{
+		if (UStaticMesh* NewMesh = SpellMap->SpellForms.FindRef(Form).FormMesh)
+		{
+			Mesh = NewMesh;
+		}
+
+		MagicElementMaterials = SpellMap->MagicElementMaterials.FindRef(BaseSpellDamage[0].ElementType);
+
+		/*if (UMaterialInstance* NewMatInst = SpellMap->MagicElementMaterials.FindRef(BaseSpellDamage[0].ElementType).MagicElementMaterial)
+		{
+			MagicMaterial = NewMatInst;
+		}
+
+		if (UMaterialInstance* NewMatInst = SpellMap->MagicElementMaterials.FindRef(BaseSpellDamage[0].ElementType).MagicElementMaterialEmissive)
+		{
+			MagicMaterialEmissive = NewMatInst;
+		}*/
+	}
 }

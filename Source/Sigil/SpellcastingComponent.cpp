@@ -23,6 +23,8 @@ void USpellcastingComponent::BeginPlay()
 
 	// ...
 	
+	EquipSelectedSpell();
+
 }
 
 
@@ -32,5 +34,52 @@ void USpellcastingComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void USpellcastingComponent::EquipSelectedSpell()
+{
+	if (!PreparedSpells.IsEmpty())
+	{
+		if (PreparedSpells[SelectedSpellIndex])
+		{
+			EquippedSpell = PreparedSpells[SelectedSpellIndex];
+		}
+	}
+}
+
+void USpellcastingComponent::SetSelectedSpellIndex(int NewIndex)
+{
+	if (NewIndex >= 0 && NewIndex < PreparedSpells.Num())
+	{
+		SelectedSpellIndex = NewIndex;
+
+		EquipSelectedSpell();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("NewIndex must be between 0 and the Length of PreparedSpells-1"));
+	}
+}
+
+void USpellcastingComponent::AddNewPreparedSpell(UDA_SpellInfo* NewSpell)
+{
+	if (NewSpell)
+	{
+		if (!PreparedSpells.Contains(NewSpell))
+		{
+			PreparedSpells.Add(NewSpell);
+		}
+	}
+}
+
+void USpellcastingComponent::RemovePreparedSpell(UDA_SpellInfo* InSpellInfo)
+{
+	if (InSpellInfo)
+	{
+		if (PreparedSpells.Contains(InSpellInfo))
+		{
+			PreparedSpells.Remove(InSpellInfo);
+		}
+	}
 }
 

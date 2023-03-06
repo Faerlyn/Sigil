@@ -227,7 +227,7 @@ void USigilMenuSpellbook::PopulatePlayerSlots()
 		int ArrayIndex = 0;
 
 		//For each item in the PlayerSpells array
-		for (UDA_SpellInfo* SpellInfo : SpellbookComponent->PlayerSpells)
+		for (UDA_SpellInfo* SpellInfo : SpellbookComponent->GetPlayerSpells())
 		{
 			//Create the name of the widget using the following format: PlayerSpellSlot_[ArrayIndex]_[SpellInfo->Name] e.g. PlayerSpellSlot_1_Fireball
 			FString SlotName = "PlayerSpellSlot_";
@@ -548,7 +548,10 @@ void USigilMenuSpellbook::AddSpellToSpellbar()
 		if (SelectedSpell)
 		{
 			//Call AddSpellToSpellbar from SigilPlayerController, passing SelectedSpell as the argument
-			PC->AddSpellToSpellbar(SelectedSpell);
+			//PC->AddSpellToSpellbar(SelectedSpell);
+			Cast<ASigilCharacter>(PC->GetPawn())->SpellcastingComponent->AddNewPreparedSpell(SelectedSpell);
+
+			PC->RequestRefreshSpellBar();
 		}
 	}
 }
@@ -564,6 +567,11 @@ void USigilMenuSpellbook::CopySelectedSpell()
 		//Create a new SpellInfo object
 		UDA_SpellInfo* CopiedSpell = NewObject<UDA_SpellInfo>(this);
 
+		if (SpellMap)
+		{
+			CopiedSpell->SpellMap = SpellMap;
+		}
+
 		//Give the new object the same spell properties as SelectedSpell
 		CopiedSpell->SetSpellProperties(SelectedSpell->GetSpellProperties());
 		
@@ -578,7 +586,7 @@ void USigilMenuSpellbook::CopySelectedSpell()
 		//Add the copied spell to the player's Spellbook
 		if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 		{
-			SC->AddSpellToSpellbook(CopiedSpell);
+			SC->SpellcastingComponent->GetSpellbookComponent()->AddSpellToSpellbook(CopiedSpell);
 		}
 		
 		RefreshSpellbookSlots();
@@ -593,6 +601,11 @@ void USigilMenuSpellbook::CreateNewSpell()
 	//Create a new SpellInfo object
 	UDA_SpellInfo* CreatedSpell = NewObject<UDA_SpellInfo>(this);
 
+	if (SpellMap)
+	{
+		CreatedSpell->SpellMap = SpellMap;
+	}
+
 	//Set bCanEdit to true
 	CreatedSpell->bCanEdit = true;
 
@@ -602,7 +615,7 @@ void USigilMenuSpellbook::CreateNewSpell()
 	//Add the new spell to the player's Spellbook
 	if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 	{
-		SC->AddSpellToSpellbook(CreatedSpell);
+		SC->SpellcastingComponent->GetSpellbookComponent()->AddSpellToSpellbook(CreatedSpell);
 	}
 
 	//Refresh the widget
@@ -621,14 +634,20 @@ void USigilMenuSpellbook::DeleteSelectedSpell()
 		if (SelectedSpell->bCanEdit)
 		{
 			//Cast the owning player controller's pawn to SigilCharacter
-			if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
+			if (ASigilPlayerController* PC = Cast<ASigilPlayerController>(GetOwningPlayer()))
 			{
-				//Remove the spell from the player's spellbook component
-				if (SC->RemoveSpellFromSpellbook(SelectedSpell))
+				if (ASigilCharacter* SC = Cast<ASigilCharacter>(PC->GetPawn()))
 				{
-					RemoveSelectedSpellFromSpellbar();
+					//Remove the spell from the player's spellbook component
+					if (SC->SpellcastingComponent->GetSpellbookComponent()->RemoveSpellFromSpellbook(SelectedSpell))
+					{
+						RemoveSelectedSpellFromSpellbar();
+
+						PC->RequestRefreshSpellBar();
+					}
 				}
 			}
+			
 
 			RefreshSpellbookSlots();
 		}
@@ -647,7 +666,10 @@ void USigilMenuSpellbook::RemoveSelectedSpellFromSpellbar()
 		if (SelectedSpell)
 		{
 			//Remove the spell from the player's Spell Bar
-			PC->RemoveSpellFromSpellbar(SelectedSpell);
+			//PC->RemoveSpellFromSpellbar(SelectedSpell);
+			Cast<ASigilCharacter>(PC->GetPawn())->SpellcastingComponent->RemovePreparedSpell(SelectedSpell);
+
+			PC->RequestRefreshSpellBar();
 		}
 	}
 }

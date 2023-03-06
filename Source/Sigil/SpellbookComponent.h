@@ -20,13 +20,22 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
+	UPROPERTY(VisibleAnywhere)
+		TArray<UDA_SpellInfo*> PlayerSpells;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UDA_SpellInfo*> PlayerSpells;
+	UFUNCTION(BlueprintCallable)
+		TArray<UDA_SpellInfo*> GetPlayerSpells() { return PlayerSpells; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetPlayerSpells(TArray<UDA_SpellInfo*> NewPlayerSpells) { PlayerSpells = NewPlayerSpells; }
 	
+	UFUNCTION(BlueprintCallable)
+		void AddSpellToSpellbook(UDA_SpellInfo* InSpellInfo);
+
+	UFUNCTION(BlueprintCallable)
+		bool RemoveSpellFromSpellbook(UDA_SpellInfo* InSpellInfo);
 };
