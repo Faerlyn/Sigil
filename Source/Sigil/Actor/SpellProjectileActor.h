@@ -9,6 +9,7 @@
 
 class UNiagaraComponent;
 class UProjectileMovementComponent;
+class UPointLightComponent;
 
 class UDA_SpellInfo;
 
@@ -46,6 +47,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell Projectile | Components")
 		UStaticMeshComponent* ProjectileMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell Projectile | Components")
+		UPointLightComponent* ProjectileLightComponent;
+
+	//Determines how quickly the projectile's light will fade out
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell Projectile | Components")
+		float LightFadeOutSpeed = 7.0f;
+
+	//If true, will interp the light component's intensity to 0 on tick.
+	bool bLightFadeOut = false;
 
 	//Tracks how long the projectile has existed for
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell Projectile | Settings")

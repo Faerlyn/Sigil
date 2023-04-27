@@ -41,7 +41,7 @@
 //ENUM_RANGE_BY_FIRST_AND_LAST(ESpellForm, ESpellForm::Aura, ESpellForm::Weapon)
 //
 //USTRUCT(BlueprintType)
-//struct FSpellFormMeshes
+//struct FSpellFormData
 //{
 //	GENERATED_USTRUCT_BODY()
 //
@@ -78,7 +78,7 @@ class SIGIL_API UDA_SpellMap : public UDataAsset
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TMap<ESpellForm, FSpellFormMeshes> SpellForms;
+		TMap<ESpellForm, FSpellFormData> SpellForms;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TMap<EMagicElementType, FMagicElementMaterials> MagicElementMaterials;

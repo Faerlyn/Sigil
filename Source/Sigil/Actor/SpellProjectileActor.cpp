@@ -6,6 +6,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/PointLightComponent.h"
 #include "NiagaraComponent.h"
 
 #include "../DataAsset/UDA_SpellInfo.h"
@@ -17,6 +18,7 @@ ASpellProjectileActor::ASpellProjectileActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
+	ProjectileLightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("Projectile Light"));
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 	NiagaraComponent_HitFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Hit FX"));
 	NiagaraComponent_TrailFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Trail FX"));
@@ -24,13 +26,21 @@ ASpellProjectileActor::ASpellProjectileActor()
 	/*
 		Attach the components to the actor
 		- ProjectileMeshComponent
+			- ProjectileLightComponent
 			- NiagaraComponent_TrailFX
 			- NiagaraComponent_HitFX
+
+		- ProjectileMovementComponent
 	*/
 
 	if (ProjectileMeshComponent)
 	{
 		SetRootComponent(ProjectileMeshComponent);
+
+		if (ProjectileLightComponent)
+		{
+			ProjectileLightComponent->SetupAttachment(RootComponent);
+		}
 
 		if (NiagaraComponent_TrailFX)
 		{
@@ -87,6 +97,12 @@ void ASpellProjectileActor::Tick(float DeltaTime)
 		}
 	}
 
+	//If bLightFadeOut is true and ProjectileLightComponent is valid
+	if (bLightFadeOut && ProjectileLightComponent)
+	{
+		//Interp the light's intensity to zero
+		ProjectileLightComponent->SetIntensity(UKismetMathLibrary::FInterpTo(ProjectileLightComponent->Intensity, 0.0f, DeltaTime, LightFadeOutSpeed));
+	}
 }
 
 void ASpellProjectileActor::SetInitialVariables(UDA_SpellInfo* InSpellInfo, UPrimitiveComponent* InTargetComponent)
@@ -111,6 +127,13 @@ void ASpellProjectileActor::SetMagicProperties()
 	//Validate ProjectileSpellInfo
 	if (ProjectileSpellInfo)
 	{
+		//Validate NiagaraComponent_HitFX
+		if (NiagaraComponent_HitFX)
+		{
+			//Set the niagara system of NiagaraComponent_HitFX using the HitFX member variable of SpellForms' FSpellFormData
+			NiagaraComponent_HitFX->SetAsset(ProjectileSpellInfo->SpellMap->SpellForms.FindRef(ProjectileSpellInfo->Form).HitFX);
+		}
+
 		//Set the materials used by the projectile
 		ApplySpellMaterials(ProjectileSpellInfo->MagicElementMaterials);
 
@@ -166,6 +189,11 @@ void ASpellProjectileActor::ApplySpellMaterials(FMagicElementMaterials InMagicEl
 {
 	//Set the materials used by ProjectileMeshComponent
 	ApplyMeshMaterials(InMagicElementMaterials);
+
+	if (ProjectileLightComponent)
+	{
+		ProjectileLightComponent->SetLightColor(InMagicElementMaterials.MagicPrimaryColour);
+	}
 
 	//Set the materials used by NiagaraComponent_HitFX
 	ApplyFXMaterials_HitFX(InMagicElementMaterials);
@@ -243,6 +271,13 @@ void ASpellProjectileActor::SetProjectileSpeeds(float InSpeed)
 
 		//Set the projectile's homing acceleration magnitude
 		ProjectileMovementComponent->HomingAccelerationMagnitude = InSpeed * 6.0f;
+
+		//Validate NiagaraComponent_TrailFX and ProjectileSpellInfo
+		if (NiagaraComponent_TrailFX && ProjectileSpellInfo)
+		{
+			//Set TrailFX's UserVelocityScale variable to the spell's speed divided by 1000 (default speed when creating a spell)
+			NiagaraComponent_TrailFX->SetVariableFloat("UserVelocityScale", (ProjectileSpellInfo->Speed / 1000));
+		}
 	}
 }
 
@@ -342,20 +377,32 @@ void ASpellProjectileActor::HomingTimerFinished()
 
 void ASpellProjectileActor::DetonateProjectile()
 {
-	//Deactivate NiagaraComponent_HitFX
-	NiagaraComponent_HitFX->Activate(false);
+	if (NiagaraComponent_HitFX)
+	{
+		//Deactivate NiagaraComponent_HitFX
+		NiagaraComponent_HitFX->Activate(false);
+	}
 
-	//Hide the projectile's mesh
-	ProjectileMeshComponent->SetVisibility(false, false);
+	if (ProjectileMeshComponent)
+	{
+		//Hide the projectile's mesh
+		ProjectileMeshComponent->SetVisibility(false, false);
 
-	//Disable the projectile's collisions
-	ProjectileMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//Disable the projectile's collisions
+		ProjectileMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	//Set bLightFadeOut to true
+	bLightFadeOut = true;
 
 	//Play the HitSFX
 	PlayHitSFX();
 
-	//Deactivate NiagaraComponent_TrailFX
-	NiagaraComponent_TrailFX->Deactivate();
+	if (NiagaraComponent_TrailFX)
+	{
+		//Deactivate NiagaraComponent_TrailFX
+		NiagaraComponent_TrailFX->Deactivate();
+	}
 }
 
 void ASpellProjectileActor::SpellProjectileHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)

@@ -97,7 +97,7 @@ void UDA_SpellInfo::SpellMapUpdate()
 {
 	if (SpellMap)
 	{
-		if (UStaticMesh* NewMesh = SpellMap->SpellForms.FindRef(Form).FormMesh)
+		if (UStaticMesh* NewMesh = SpellMap->SpellForms.FindRef(Form).Mesh)
 		{
 			Mesh = NewMesh;
 		}

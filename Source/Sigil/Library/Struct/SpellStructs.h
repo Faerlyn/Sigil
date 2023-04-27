@@ -7,6 +7,8 @@
 #include "../Enum/SpellEnums.h"
 #include "SpellStructs.generated.h"
 
+class UNiagaraSystem;
+
 USTRUCT(BlueprintType)
 struct FSpellElements
 {
@@ -80,12 +82,15 @@ struct FSpellProperties
 };
 
 USTRUCT(BlueprintType)
-struct FSpellFormMeshes
+struct FSpellFormData
 {
 	GENERATED_USTRUCT_BODY()
 
-		UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		UStaticMesh* FormMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UStaticMesh* Mesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UNiagaraSystem* HitFX;
 };
 
 USTRUCT(BlueprintType)

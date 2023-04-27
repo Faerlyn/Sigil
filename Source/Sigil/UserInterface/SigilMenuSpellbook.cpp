@@ -550,6 +550,11 @@ void USigilMenuSpellbook::CopySelectedSpell()
 			SC->GetSpellcastingComponent()->GetSpellbookComponent()->AddSpellToSpellbook(CopiedSpell);
 		}
 		
+
+		//Set the copied spell as the selected spell
+		SelectedSpell = CopiedSpell;
+
+		//Refresh the widget
 		RefreshSpellbookSlots();
 	}
 }
@@ -575,6 +580,9 @@ void USigilMenuSpellbook::CreateNewSpell()
 	{
 		SC->GetSpellcastingComponent()->GetSpellbookComponent()->AddSpellToSpellbook(CreatedSpell);
 	}
+
+	//Set the created spell as the selected spell
+	SelectedSpell = CreatedSpell;
 
 	//Refresh the widget
 	RefreshSpellbookSlots();

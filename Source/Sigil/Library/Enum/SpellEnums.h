@@ -38,16 +38,16 @@ UENUM(BlueprintType)
 enum class ESpellForm : uint8
 {
 	None			UMETA(Hidden),
-	Aura			UMETA(DisplayName = "Aura"),
-	Breath			UMETA(DisplayName = "Breath"),
+	Aura			UMETA(DisplayName = "Aura - Not Implemented Yet"),
+	Breath			UMETA(DisplayName = "Breath - Not Implemented Yet"),
 	Dart			UMETA(DisplayName = "Dart"),
-	Enchant			UMETA(DisplayName = "Enchant"),
+	Enchant			UMETA(DisplayName = "Enchant - Not Implemented Yet"),
 	Flare			UMETA(DisplayName = "Flare"),
 	Orb				UMETA(DisplayName = "Orb"),
-	Ray				UMETA(DisplayName = "Ray"),
-	Vortex			UMETA(DisplayName = "Vortex"),
-	Wall			UMETA(DisplayName = "Wall"),
-	Weapon			UMETA(DisplayName = "Weapon"),
+	Ray				UMETA(DisplayName = "Ray - Not Implemented Yet"),
+	Vortex			UMETA(DisplayName = "Vortex - Not Implemented Yet"),
+	Wall			UMETA(DisplayName = "Wall - Not Implemented Yet"),
+	Weapon			UMETA(DisplayName = "Weapon - Not Implemented Yet"),
 };
 ENUM_RANGE_BY_FIRST_AND_LAST(ESpellForm, ESpellForm::Aura, ESpellForm::Weapon)
 
