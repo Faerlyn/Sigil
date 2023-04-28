@@ -34,9 +34,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Shield | SFX")
 		USoundBase* ShieldBlockSFX;
 
-	UPROPERTY(EditAnywhere, Category = "Shield | SFX")
-		USoundAttenuation* ShieldAttenuationSettings;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Shield | Settings")
 		bool bIsActive = true;
 	

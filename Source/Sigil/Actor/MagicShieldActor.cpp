@@ -57,7 +57,7 @@ void AMagicShieldActor::ShieldReceiveAnyDamage(AActor* DamagedActor, float Damag
 
 			UGameplayStatics::ApplyDamage(SC, ReducedDamage, InstigatedBy, DamageCauser, DamageType->GetClass());
 
-			UGameplayStatics::SpawnSoundAtLocation(this, ShieldBlockSFX, GetActorLocation(), FRotator(0, 0, 0), 1.0f, UKismetMathLibrary::RandomFloatInRange(0.6f, 1.4f), 0.0f, ShieldAttenuationSettings, nullptr, true);
+			UGameplayStatics::SpawnSoundAtLocation(this, ShieldBlockSFX, GetActorLocation(), FRotator(0, 0, 0), 1.0f, UKismetMathLibrary::RandomFloatInRange(0.6f, 1.4f), 0.0f, nullptr, nullptr, true);
 
 		}
 	}

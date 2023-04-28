@@ -303,18 +303,14 @@ void ASpellProjectileActor::PlayCastSFX()
 	//Validate ProjectileSpellInfo
 	if (ProjectileSpellInfo)
 	{
-		//Validate ProjectileAttenuationSettings
-		if (ProjectileAttenuationSettings)
+		//Validate ProjectileSpellInfo's CastSFX
+		if (ProjectileSpellInfo->CastSFX)
 		{
-			//Validate ProjectileSpellInfo's CastSFX
-			if (ProjectileSpellInfo->CastSFX)
+			//Validate ProjectileMeshComponent
+			if (ProjectileMeshComponent)
 			{
-				//Validate ProjectileMeshComponent
-				if (ProjectileMeshComponent)
-				{
-					//Play CastFX where the projectile is
-					UGameplayStatics::SpawnSoundAttached(ProjectileSpellInfo->CastSFX, ProjectileMeshComponent, NAME_None, FVector(0.0f, 0.0f, 0.0f), EAttachLocation::KeepRelativeOffset, true, 1.0f, 1.0f, 0.0f, ProjectileAttenuationSettings, nullptr, true);
-				}
+				//Play CastFX where the projectile is
+				UGameplayStatics::SpawnSoundAttached(ProjectileSpellInfo->CastSFX, ProjectileMeshComponent, NAME_None, FVector(0.0f, 0.0f, 0.0f), EAttachLocation::KeepRelativeOffset, true, 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
 			}
 		}
 	}
@@ -325,15 +321,11 @@ void ASpellProjectileActor::PlayHitSFX()
 	//Validate ProjectileSpellInfo
 	if (ProjectileSpellInfo)
 	{
-		//Validate ProjectileAttenuationSettings
-		if (ProjectileAttenuationSettings)
+		//Validate ProjectileSpellInfo's HitSFX
+		if (ProjectileSpellInfo->HitSFX)
 		{
-			//Validate ProjectileSpellInfo's HitSFX
-			if (ProjectileSpellInfo->HitSFX)
-			{
-				//Play HitFX where the projectile hit
-				UGameplayStatics::SpawnSoundAtLocation(this, ProjectileSpellInfo->HitSFX, GetActorLocation(), FRotator(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 0.0f, ProjectileAttenuationSettings, nullptr, true);
-			}
+			//Play HitFX where the projectile hit
+			UGameplayStatics::SpawnSoundAtLocation(this, ProjectileSpellInfo->HitSFX, GetActorLocation(), FRotator(0.0f, 0.0f, 0.0f), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
 		}
 	}
 }

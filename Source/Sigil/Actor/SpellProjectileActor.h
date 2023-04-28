@@ -70,9 +70,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell Projectile | Settings")
 		float HomingDelay = 0.3f;
 
-	UPROPERTY(EditAnywhere, Category = "Spell Projectile | Settings")
-		USoundAttenuation* ProjectileAttenuationSettings;
-
 	FTimerHandle HomingTimerHandle;
 	
 	bool bDetonateDoOnce = false;
