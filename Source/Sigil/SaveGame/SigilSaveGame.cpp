@@ -105,6 +105,7 @@ bool USigilSaveGame::TryLoadPreparedCoreSpells(int InArrayIndex, TArray<UDA_Spel
 	{
 		//Add the spell to InSpellArray at the same index
 		InSpellArray.Insert(PreparedCoreSpells[InArrayIndex], InArrayIndex);
+		//InSpellArray.Add(PreparedCoreSpells[InArrayIndex]);
 
 		//Return true to show that the operation was successful
 		return true;
@@ -119,10 +120,13 @@ bool USigilSaveGame::TryLoadPreparedCoreSpells(int InArrayIndex, TArray<UDA_Spel
 bool USigilSaveGame::TryLoadPreparedPlayerSpells(int InArrayIndex, TArray<UDA_SpellInfo*>& InSpellArray)
 {
 	//If PreparedPlayerSpells has an element at the provided index
-	if (int FoundInt = *PreparedPlayerSpells.Find(InArrayIndex))
+	if (PreparedPlayerSpells.Find(InArrayIndex))
 	{
+		int FoundInt = *PreparedPlayerSpells.Find(InArrayIndex);
+
 		//Get the spell from OutPlayerSpells at the same index and add it to InSpellArray
 		InSpellArray.Insert(OutPlayerSpells[FoundInt], InArrayIndex);
+		//InSpellArray.Add(OutPlayerSpells[FoundInt]);
 
 		//Return true to show that the operation was successful
 		return true;
