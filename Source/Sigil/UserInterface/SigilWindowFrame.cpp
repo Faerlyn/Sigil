@@ -89,7 +89,7 @@ void USigilWindowFrame::SetWindowIsMoveable(bool InBool)
 	bWindowIsMoveable = InBool;
 
 	//Print to the output log
-	UE_LOG(LogTemp, Display, TEXT("bWindowIsMoveable set to %s"), (bWindowIsMoveable ? TEXT("true") : TEXT("false")));
+	UE_LOG(LogTemp, Display, TEXT("Information: USigilWindowFrame::SetWindowIsMoveable bWindowIsMoveable set to %s"), (bWindowIsMoveable ? TEXT("true") : TEXT("false")));
 }
 
 void USigilWindowFrame::SetWindowIsResizeable(bool InBool)
@@ -98,7 +98,7 @@ void USigilWindowFrame::SetWindowIsResizeable(bool InBool)
 	bWindowIsResizeable = InBool;
 
 	//Print to the output log
-	UE_LOG(LogTemp, Display, TEXT("bWindowIsResizeable set to %s"), (bWindowIsResizeable ? TEXT("true") : TEXT("false")));
+	UE_LOG(LogTemp, Display, TEXT("Information: USigilWindowFrame::SetWindowIsResizeable bWindowIsResizeable set to %s"), (bWindowIsResizeable ? TEXT("true") : TEXT("false")));
 }
 
 void USigilWindowFrame::SetWindowIsResizeableLeftRightOnly(bool InBool)
@@ -107,7 +107,7 @@ void USigilWindowFrame::SetWindowIsResizeableLeftRightOnly(bool InBool)
 	bWindowIsResizeableLeftRightOnly = InBool;
 
 	//Print to the output log
-	UE_LOG(LogTemp, Display, TEXT("bWindowIsResizeableLeftRightOnly set to %s"), (bWindowIsResizeableLeftRightOnly ? TEXT("true") : TEXT("false")));
+	UE_LOG(LogTemp, Display, TEXT("Information: USigilWindowFrame::SetWindowIsResizeableLeftRightOnly bWindowIsResizeableLeftRightOnly set to %s"), (bWindowIsResizeableLeftRightOnly ? TEXT("true") : TEXT("false")));
 }
 
 void USigilWindowFrame::SetWindowIsResizeableUpDownOnly(bool InBool)
@@ -116,7 +116,7 @@ void USigilWindowFrame::SetWindowIsResizeableUpDownOnly(bool InBool)
 	bWindowIsResizeableUpDownOnly = InBool;
 
 	//Print to the output log
-	UE_LOG(LogTemp, Display, TEXT("bWindowIsResizeableUpDownOnly set to %s"), (bWindowIsResizeableUpDownOnly ? TEXT("true") : TEXT("false")));
+	UE_LOG(LogTemp, Display, TEXT("Information: USigilWindowFrame::SetWindowIsResizeableUpDownOnly bWindowIsResizeableUpDownOnly set to %s"), (bWindowIsResizeableUpDownOnly ? TEXT("true") : TEXT("false")));
 }
 
 FReply USigilWindowFrame::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -224,7 +224,7 @@ void USigilWindowFrame::ResizeWindow()
 	//Set the size of WindowFrame to NewWindowSize, print this value to the output log and screen
 	UWidgetLayoutLibrary::SlotAsCanvasSlot(WindowFrame)->SetSize(NewWindowSize);
 
-	UE_LOG(LogTemp, Display, TEXT("New Window Size: %s"), *NewWindowSize.ToString());
+	UE_LOG(LogTemp, Display, TEXT("Information: USigilWindowFrame::ResizeWindow New Window Size: %s"), *NewWindowSize.ToString());
 }
 
 void USigilWindowFrame::ResizeWindowToMinimum()

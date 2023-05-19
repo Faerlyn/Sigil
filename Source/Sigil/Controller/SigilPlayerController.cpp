@@ -260,13 +260,13 @@ void ASigilPlayerController::RequestSaveGame(FString InSaveSlotName, int InUserI
 			if (UGameplayStatics::SaveGameToSlot(SaveGameRef, InSaveSlotName, InUserIndex))
 			{
 				//Print a message to the log to say that the game was saved
-				UE_LOG(LogTemp, Display, TEXT("Success: Game saved"));
+				UE_LOG(LogTemp, Display, TEXT("Success: ASigilPlayerController::RequestSaveGame Game saved"));
 				//UKismetSystemLibrary::PrintString(this, "Game saved!", true, true, FLinearColor::Yellow, 2.0f, "GameSave");
 			}
 			else
 			{
 				//Print a message to the log warning that the game was not saved
-				UE_LOG(LogTemp, Warning, TEXT("Error: Game was not saved"));
+				UE_LOG(LogTemp, Warning, TEXT("Error: ASigilPlayerController::RequestSaveGame Game was not saved"));
 				//UKismetSystemLibrary::PrintString(this, "Game not saved!", true, true, FLinearColor::Yellow, 2.0f, "GameSave");
 			}
 		}
@@ -279,7 +279,7 @@ void ASigilPlayerController::RequestLoadSave(FString InSaveSlotName, int InUserI
 	if (UGameplayStatics::DoesSaveGameExist(InSaveSlotName, InUserIndex))
 	{
 		//Print a message to the log saying a save game was found
-		UE_LOG(LogTemp, Display, TEXT("Success: Save game was found"));
+		UE_LOG(LogTemp, Display, TEXT("Success: ASigilPlayerController::RequestLoadSave Save game was found"));
 
 		//Load the save game and store a reference to it
 		SaveGameRef = Cast<USigilSaveGame>(UGameplayStatics::LoadGameFromSlot(InSaveSlotName, InUserIndex));
@@ -311,7 +311,7 @@ void ASigilPlayerController::RequestLoadSave(FString InSaveSlotName, int InUserI
 				SC->GetSpellcastingComponent()->SetPreparedSpells(NewPreparedSpells);
 
 				//Print a message to the console saying that the save game was loaded
-				UE_LOG(LogTemp, Display, TEXT("Success: Save game loaded"));
+				UE_LOG(LogTemp, Display, TEXT("Success: ASigilPlayerController::RequestLoadSave Save game loaded"));
 				//UKismetSystemLibrary::PrintString(this, "Game loaded!", true, true, FLinearColor::Yellow, 2.0f, "GameSave");
 
 				//Refresh the player's spell selection bar
@@ -321,14 +321,14 @@ void ASigilPlayerController::RequestLoadSave(FString InSaveSlotName, int InUserI
 		else
 		{
 			//Print a message to the log warning that the save game was not loaded
-			UE_LOG(LogTemp, Warning, TEXT("Error: Save game was not loaded"));
+			UE_LOG(LogTemp, Warning, TEXT("Error: ASigilPlayerController::RequestLoadSave Save game was not loaded"));
 			//UKismetSystemLibrary::PrintString(this, "Game not loaded!", true, true, FLinearColor::Yellow, 2.0f, "GameSave");
 		}
 	}
 	else
 	{
 		//Print a message to the log saying that no save game exists
-		UE_LOG(LogTemp, Warning, TEXT("Warning: No save game exists for this slot name and user index"));
+		UE_LOG(LogTemp, Warning, TEXT("Warning: ASigilPlayerController::RequestLoadSave No save game exists for this slot name and user index"));
 	}
 }
 

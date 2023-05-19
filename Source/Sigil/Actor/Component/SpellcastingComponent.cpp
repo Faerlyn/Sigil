@@ -74,7 +74,7 @@ void USpellcastingComponent::SetSelectedSpellIndex(int NewIndex)
 	else
 	{
 		//Print message to the log
-		UE_LOG(LogTemp, Warning, TEXT("Information: NewIndex must be between 0 and the Length of PreparedSpells -1"));
+		UE_LOG(LogTemp, Warning, TEXT("Information: USpellcastingComponent::SetSelectedSpellIndex NewIndex must be between 0 and the Length of PreparedSpells -1"));
 	}
 }
 

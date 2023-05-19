@@ -112,8 +112,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FSpellProperties GetSpellProperties();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bCanEdit = true;
+	UPROPERTY(BlueprintReadWrite)
+		bool bCanEdit = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Details")
 		FName Name;

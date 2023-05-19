@@ -60,6 +60,9 @@ TArray<UDA_SpellInfo*> USigilSaveGame::LoadPlayerSpells()
 		//Create a new object of type UDA_SpellInfo
 		UDA_SpellInfo* CreatedSpell = NewObject<UDA_SpellInfo>(this);
 
+		//Set bCanEdit to true
+		CreatedSpell->bCanEdit = true;
+
 		//Validate SpellMap
 		if (SpellMap)
 		{
@@ -105,7 +108,6 @@ bool USigilSaveGame::TryLoadPreparedCoreSpells(int InArrayIndex, TArray<UDA_Spel
 	{
 		//Add the spell to InSpellArray at the same index
 		InSpellArray.Insert(PreparedCoreSpells[InArrayIndex], InArrayIndex);
-		//InSpellArray.Add(PreparedCoreSpells[InArrayIndex]);
 
 		//Return true to show that the operation was successful
 		return true;
@@ -126,7 +128,6 @@ bool USigilSaveGame::TryLoadPreparedPlayerSpells(int InArrayIndex, TArray<UDA_Sp
 
 		//Get the spell from OutPlayerSpells at the same index and add it to InSpellArray
 		InSpellArray.Insert(OutPlayerSpells[FoundInt], InArrayIndex);
-		//InSpellArray.Add(OutPlayerSpells[FoundInt]);
 
 		//Return true to show that the operation was successful
 		return true;

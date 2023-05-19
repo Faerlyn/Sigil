@@ -411,13 +411,19 @@ void USigilMenuSpellbook::ShowSpellProperties()
 		if (ComboBoxString_PropertyElement)
 		{
 			//Set the selected option of the Element combo box to the ElementType of SelectedSpell's BaseSpellDamage first element
-			ComboBoxString_PropertyElement->SetSelectedOption(UEnum::GetDisplayValueAsText(SelectedSpell->SpellDamage[0].ElementType).ToString());
+			if (!SelectedSpell->SpellDamage.IsEmpty())
+			{
+				ComboBoxString_PropertyElement->SetSelectedOption(UEnum::GetDisplayValueAsText(SelectedSpell->SpellDamage[0].ElementType).ToString());
+			}
 		}
 
 		if (EditableTextBox_Potency)
 		{
 			//Set the text of the Potency text box to DamageAmount from the same element
-			EditableTextBox_Potency->SetText(UKismetTextLibrary::Conv_FloatToText(SelectedSpell->BaseSpellDamage[0].DamageAmount, ERoundingMode::HalfToEven));
+			if (!SelectedSpell->BaseSpellDamage.IsEmpty())
+			{
+				EditableTextBox_Potency->SetText(UKismetTextLibrary::Conv_FloatToText(SelectedSpell->BaseSpellDamage[0].DamageAmount, ERoundingMode::HalfToEven));
+			}
 		}
 
 		if (Button_SaveChanges)
@@ -528,8 +534,13 @@ void USigilMenuSpellbook::CopySelectedSpell()
 		//Create a new SpellInfo object
 		UDA_SpellInfo* CopiedSpell = NewObject<UDA_SpellInfo>(this);
 
+		//Set bCanEdit to true
+		CopiedSpell->bCanEdit = true;
+
+		//Validate SpellMap
 		if (SpellMap)
 		{
+			//Set CopiedSpell's SpellMap
 			CopiedSpell->SpellMap = SpellMap;
 		}
 
@@ -541,21 +552,22 @@ void USigilMenuSpellbook::CopySelectedSpell()
 		NewName.Append(SelectedSpell->Name.ToString());
 		CopiedSpell->Name = UKismetStringLibrary::Conv_StringToName(NewName);
 
-		//Set bCanEdit to true
-		CopiedSpell->bCanEdit = true;
-
 		//Add the copied spell to the player's Spellbook
 		if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
 		{
 			SC->GetSpellcastingComponent()->GetSpellbookComponent()->AddSpellToSpellbook(CopiedSpell);
 		}
-		
 
 		//Set the copied spell as the selected spell
 		SelectedSpell = CopiedSpell;
 
 		//Refresh the widget
 		RefreshSpellbookSlots();
+	}
+	else
+	{
+		//Print an error message to the log
+		UE_LOG(LogTemp, Warning, TEXT("Error: USigilMenuSpellbook::CopySelectedSpell CopiedSpell is not valid"));
 	}
 }
 
@@ -564,28 +576,40 @@ void USigilMenuSpellbook::CreateNewSpell()
 	//Create a new SpellInfo object
 	UDA_SpellInfo* CreatedSpell = NewObject<UDA_SpellInfo>(this);
 
-	if (SpellMap)
+	//Validate CreatedSpell
+	if (CreatedSpell)
 	{
-		CreatedSpell->SpellMap = SpellMap;
+		//Set bCanEdit to true
+		CreatedSpell->bCanEdit = true;
+
+		//Validate SpellMap
+		if (SpellMap)
+		{
+			//Set CreatedSpell's SpellMap
+			CreatedSpell->SpellMap = SpellMap;
+		}
+
+		//Set the spell's properties using NewSpellDefaultProperties which is defined in blueprint
+		CreatedSpell->SetSpellProperties(NewSpellDefaultProperties);
+
+		//Add the new spell to the player's Spellbook
+		if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
+		{
+			SC->GetSpellcastingComponent()->GetSpellbookComponent()->AddSpellToSpellbook(CreatedSpell);
+		}
+
+		//Set the created spell as the selected spell
+		SelectedSpell = CreatedSpell;
+
+		//Refresh the widget
+		RefreshSpellbookSlots();
+	}
+	else
+	{
+		//Print an error message to the log
+		UE_LOG(LogTemp, Warning, TEXT("Error: USigilMenuSpellbook::CreateNewSpell CreatedSpell is not valid"));
 	}
 
-	//Set bCanEdit to true
-	CreatedSpell->bCanEdit = true;
-
-	//Set the spell's properties using NewSpellDefaultProperties which is defined in blueprint
-	CreatedSpell->SetSpellProperties(NewSpellDefaultProperties);
-
-	//Add the new spell to the player's Spellbook
-	if (ASigilCharacter* SC = Cast<ASigilCharacter>(GetOwningPlayer()->GetPawn()))
-	{
-		SC->GetSpellcastingComponent()->GetSpellbookComponent()->AddSpellToSpellbook(CreatedSpell);
-	}
-
-	//Set the created spell as the selected spell
-	SelectedSpell = CreatedSpell;
-
-	//Refresh the widget
-	RefreshSpellbookSlots();
 }
 
 void USigilMenuSpellbook::DeleteSelectedSpell()

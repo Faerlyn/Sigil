@@ -80,7 +80,7 @@ FText USigilUIPercentageSlider::CreateSliderTooltipText()
 	}
 
 	//If validation fails, log an error
-	UE_LOG(LogTemp, Warning, TEXT("PercentageSlider is not valid"));
+	UE_LOG(LogTemp, Warning, TEXT("Error: USigilUIPercentageSlider::CreateSliderTooltipText PercentageSlider is not valid"));
 	return FText();
 }
 
